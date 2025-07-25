@@ -275,7 +275,7 @@ async function iniciarPagamentoPixPage() {
                          !window.location.hostname.includes('localhost');
         
         let apiUrl = isProduction ? 
-            window.location.origin + '/checkout/pagamento.php' : 
+            window.location.origin + '/api/checkout/pagamento.php' : 
             'checkout/pagamento.php';
             
         console.log("URL da API PIX:", apiUrl);
@@ -393,8 +393,18 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
         console.log(`Verificando pagamento (tentativa ${tentativas}/${maxTentativas})`);
 
         try {
+            // URL da API de verificação de acordo com o ambiente
+            const isProduction = window.location.hostname.includes('vercel.app') || 
+                             !window.location.hostname.includes('localhost');
+            
+            const verificarUrl = isProduction ? 
+                `${window.location.origin}/api/checkout/verificar.php?id=${transactionId}` : 
+                `checkout/verificar.php?id=${transactionId}`;
+                
+            console.log(`URL de verificação: ${verificarUrl}`);
+            
             // Fazer chamada real para API de verificação
-            const response = await fetch(`checkout/verificar.php?id=${transactionId}`);
+            const response = await fetch(verificarUrl);
             if (!response.ok) {
                 throw new Error(`Erro na API de verificação: ${response.status}`);
             }

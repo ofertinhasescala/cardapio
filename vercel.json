@@ -1,17 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "api/*.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "checkout/*.php": {
+    "api/**/*.php": {
       "runtime": "vercel-php@0.6.0"
     }
   },
   "routes": [
-    { "src": "/checkout/(.*)\\.php", "dest": "/checkout/$1.php" },
+    { "src": "/api/checkout/(.*)\\.php", "dest": "/api/checkout/$1.php" },
     { "src": "/api/(.*)\\.php", "dest": "/api/$1.php" },
-    { "src": "/(.*)\\.php", "dest": "/$1.php" },
+    { "src": "/(.*)\\.php", "dest": "/api/$1.php" },
     { "src": "/(.*)", "dest": "/$1" }
   ],
   "headers": [
