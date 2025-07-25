@@ -13,21 +13,11 @@
     "api/fb-conversions-api/index.php": {
       "runtime": "vercel-php@0.6.0"
     },
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    },
-    "api/checkout/index": {
-      "runtime": "nodejs20.x"
-    },
-    "api/fb-conversions-api/index": {
-      "runtime": "nodejs20.x"
-    },
-    "api/index": {
-      "runtime": "nodejs20.x"
-    },
-    "api/webhook/index": {
-      "runtime": "nodejs20.x"
-    }
+    "api/**/*.js": {},
+    "api/checkout/index": {},
+    "api/fb-conversions-api/index": {},
+    "api/index": {},
+    "api/webhook/index": {}
   },
   "rewrites": [
     { "source": "/checkout/pagamento.php", "destination": "/api/checkout/index.php" },
