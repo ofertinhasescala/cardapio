@@ -14,8 +14,8 @@ $id = trim($id);
 $id = preg_replace('/[^a-zA-Z0-9\-]/', '', $id);
 
 try {
-    // Conecta ao SQLite
-    $dbPath = __DIR__ . '/database.sqlite';
+    // Conecta ao SQLite usando variáveis de ambiente para compatibilidade com Vercel
+    $dbPath = getenv('DB_PATH') ?: __DIR__ . '/database.sqlite';
     $db = new PDO("sqlite:$dbPath");
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -54,6 +54,6 @@ try {
     echo json_encode([
         'success' => false,
         'status' => 'error',
-        'message' => 'Erro ao verificar o status do pagamento'
+        'message' => 'Erro ao verificar o status do pagamento: ' . (getenv('ENVIRONMENT') == 'development' ? $e->getMessage() : 'Contate o suporte.')
     ]);
 } 

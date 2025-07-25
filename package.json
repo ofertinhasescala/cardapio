@@ -1,0 +1,29 @@
+{
+  "name": "atelier-phamela-gourmet",
+  "version": "1.0.0",
+  "description": "Atelier Phamela Gourmet - Loja Online",
+  "main": "index.html",
+  "scripts": {
+    "start": "php -S localhost:8000 -t .",
+    "dev": "php -S localhost:8000 -t ."
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "dependencies": {
+    "vercel-php": "^0.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ofertinhasescala/cardapio.git"
+  },
+  "keywords": [
+    "phamela",
+    "gourmet",
+    "loja",
+    "online",
+    "doces"
+  ],
+  "author": "Atelier Phamela Gourmet",
+  "license": "MIT"
+} 

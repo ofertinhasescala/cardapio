@@ -56,10 +56,10 @@ function gerarCPF() {
 }
 
 try {
-    // Configurações da API Monetrix
+    // Configurações da API Monetrix - Usando variáveis de ambiente
     $apiUrl = 'https://api.monetrix.store/v1/transactions';
-    $publicKey = 'pk_ouwx4hvdzP2IcG-qH-KG4tBeF7_rhkba_HYje6SsTjHo5umn';
-    $secretKey = 'sk__Q39xQdSt6qPoM9gOBb5EKXeG0i-3Fo1pMP77BiWS7Fygjng';
+    $publicKey = getenv('API_KEY') ?: 'pk_ouwx4hvdzP2IcG-qH-KG4tBeF7_rhkba_HYje6SsTjHo5umn';
+    $secretKey = getenv('API_SECRET') ?: 'sk__Q39xQdSt6qPoM9gOBb5EKXeG0i-3Fo1pMP77BiWS7Fygjng';
     
     // Basic Auth para Monetrix
     $auth = base64_encode($publicKey . ':' . $secretKey);
@@ -73,8 +73,10 @@ try {
         throw new Exception("Credenciais da API Monetrix não configuradas");
     }
 
+    // Caminho do banco de dados - Usando variáveis de ambiente para Vercel
+    $dbPath = getenv('DB_PATH') ?: __DIR__ . '/database.sqlite'; 
+    
     // Conecta ao SQLite (arquivo de banco de dados)
-    $dbPath = __DIR__ . '/database.sqlite'; // Caminho para o arquivo SQLite
     $db = new PDO("sqlite:$dbPath");
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

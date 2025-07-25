@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.6.0"
+    },
+    "checkout/*.php": {
+      "runtime": "vercel-php@0.6.0"
+    }
+  },
+  "routes": [
+    { "src": "/checkout/(.*)\\.php", "dest": "/checkout/$1.php" },
+    { "src": "/(.*)\\.php", "dest": "/$1.php" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ],
+  "env": {
+    "PHP_MEMORY_LIMIT": "512M",
+    "PHP_DISPLAY_ERRORS": "1"
+  },
+  "build": {
+    "env": {
+      "PHP_VERSION": "7.4"
+    }
+  }
+} 
