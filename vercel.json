@@ -2,13 +2,19 @@
   "version": 2,
   "functions": {
     "api/checkout/pagamento/index.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs@20.x"
     },
     "api/checkout/verificar/index.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs@20.x"
     },
     "api/fb-conversions-api/index.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs@20.x"
+    },
+    "api/payment.js": {
+      "runtime": "nodejs@20.x"
+    },
+    "api/verify.js": {
+      "runtime": "nodejs@20.x"
     }
   },
   "rewrites": [
