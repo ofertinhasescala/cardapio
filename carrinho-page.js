@@ -274,6 +274,19 @@ function irParaCheckout() {
     
     // Garantir que o carrinho esteja salvo no localStorage antes de redirecionar
     salvarCarrinhoNoCache();
+    
+    // Rastrear evento de início de checkout
+    if (typeof fbPixelTracker !== 'undefined') {
+        fbPixelTracker.initiateCheckout({
+            items: carrinho.map(item => ({
+                id: item.id,
+                quantity: item.quantidade,
+                price: item.preco
+            })),
+            total: calcularTotalCarrinho()
+        });
+    }
+    
     window.location.href = 'checkout.html';
 }
 

@@ -257,6 +257,15 @@ async function iniciarPagamentoPixPage() {
             utmParams: capturarParametrosUTM()
         };
 
+        // Rastrear evento de método de pagamento (AddPaymentInfo)
+        if (typeof fbPixelTracker !== 'undefined') {
+            fbPixelTracker.addPaymentInfo({
+                method: 'pix',
+                total: calcularResumoCompleto().total,
+                items: carrinho
+            });
+        }
+
         console.log("Enviando dados para API PIX:", dadosPagamento);
 
         // Fazer a requisição para a API real
@@ -423,10 +432,33 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
     }, 5000); // Verificar a cada 5 segundos
 }
 
-// Função para exibir pagamento confirmado
+// Função para exibir confirmação de pagamento
 function exibirPagamentoConfirmadoPage(dadosPagamento) {
+    document.getElementById('gerandoPixPage').classList.add('hidden');
     document.getElementById('pixGeradoPage').classList.add('hidden');
     document.getElementById('pagamentoConfirmadoPage').classList.remove('hidden');
+
+    // Salvar o ID da transação para referência
+    window.transactionId = dadosPagamento.id || dadosPagamento.transactionId || dadosPagamento.token;
+
+    // Rastrear evento de compra (Purchase)
+    if (typeof fbPixelTracker !== 'undefined') {
+        fbPixelTracker.purchase({
+            items: carrinho.map(item => ({
+                id: item.id,
+                quantity: item.quantidade,
+                price: item.preco
+            })),
+            total: calcularResumoCompleto().total,
+            orderId: window.transactionId || `order_${Date.now()}`
+        });
+    }
+
+    // Limpar carrinho após pagamento confirmado
+    setTimeout(() => {
+        localStorage.removeItem('carrinho_produtos');
+        carrinho = [];
+    }, 1000); // Aguardar um pouco para garantir que o usuário veja a mensagem
 
     // Exibir resumo final
     exibirResumoFinalPedidoPage();
