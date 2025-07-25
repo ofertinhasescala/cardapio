@@ -289,58 +289,95 @@ async function iniciarPagamentoPixPage() {
         // Rastrear evento de método de pagamento (AddPaymentInfo)
         if (typeof fbPixelTracker !== 'undefined') {
             console.log("Rastreando evento de AddPaymentInfo");
-            fbPixelTracker.addPaymentInfo({
-                method: 'pix',
-                total: calcularResumoCompleto().total,
-                items: carrinho
-            });
+            try {
+                fbPixelTracker.addPaymentInfo({
+                    method: 'pix',
+                    total: calcularResumoCompleto().total,
+                    items: carrinho
+                });
+            } catch (pixelError) {
+                console.error("Erro ao rastrear evento do Facebook Pixel:", pixelError);
+                // Continuar com o pagamento mesmo se o tracking falhar
+            }
         }
 
-        // Enviar dados para API
-        console.log("Enviando dados para API PIX:", dadosPedido);
-        
-        // Verificar a URL da API de acordo com o ambiente
+        // Lista de possíveis URLs da API, em ordem de tentativa
+        const apiUrls = [];
         const isProduction = window.location.hostname.includes('vercel.app') || 
                          !window.location.hostname.includes('localhost');
         
-        let apiUrl = isProduction ? 
-            window.location.origin + '/api/checkout/pagamento.php' : 
-            'checkout/pagamento.php';
-            
-        console.log("URL da API PIX:", apiUrl);
+        // Primeiro tentar a API Node.js (que funciona no Vercel)
+        apiUrls.push('/api/payment');
         
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(dadosPedido),
-            mode: 'cors',
-            credentials: 'omit'
-        });
-
-        console.log("Resposta da API PIX - Status:", response.status);
-        
-        if (!response.ok) {
-            throw new Error(`Erro na API: ${response.status}`);
+        // Backup para API PHP local apenas em desenvolvimento
+        if (!isProduction) {
+            apiUrls.push('checkout/pagamento.php');
         }
         
-        // Processar resposta da API
-        const dadosPagamento = await response.json();
-        console.log("Dados do pagamento recebidos:", dadosPagamento);
+        // Variável para armazenar a resposta bem-sucedida
+        let successResponse = null;
+        let lastError = null;
         
-        if (!dadosPagamento.success) {
-            throw new Error(dadosPagamento.message || "Erro ao gerar PIX");
+        // Tentativa sequencial de cada URL
+        for (const apiUrl of apiUrls) {
+            console.log("Tentando URL da API PIX:", apiUrl);
+            
+            try {
+                // Enviar dados para API com timeout de 10 segundos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(dadosPedido),
+                    mode: 'cors',
+                    credentials: 'omit',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                console.log("Resposta da API PIX:", apiUrl, "- Status:", response.status);
+                
+                // Se encontrou uma resposta bem-sucedida, quebra o loop
+                if (response.ok) {
+                    successResponse = await response.json();
+                    console.log("Dados do pagamento recebidos:", successResponse);
+                    break;
+                } else {
+                    // Registrar o erro, mas continuar tentando
+                    const errorText = await response.text();
+                    lastError = new Error(`Erro na API (${response.status}): ${errorText}`);
+                    console.warn(`API ${apiUrl} retornou status ${response.status}:`, errorText);
+                }
+            } catch (fetchError) {
+                console.warn(`Erro ao chamar API ${apiUrl}:`, fetchError);
+                lastError = fetchError;
+                // Continuar para a próxima URL
+            }
+        }
+        
+        // Se não encontrou nenhuma resposta bem-sucedida
+        if (!successResponse) {
+            throw lastError || new Error("Todas as tentativas de API falharam");
+        }
+        
+        // Verificar se a resposta indica sucesso
+        if (!successResponse.success) {
+            throw new Error(successResponse.message || "Erro ao gerar PIX");
         }
         
         // Exibir PIX
-        exibirPixGeradoPage(dadosPagamento);
+        exibirPixGeradoPage(successResponse);
         
         // Iniciar verificação de pagamento
         setTimeout(() => {
-            iniciarVerificacaoPagamentoPage(dadosPagamento);
-        }, 5000);
+            iniciarVerificacaoPagamentoPage(successResponse.transactionId);
+        }, 3000);
         
     } catch (error) {
         console.error("Erro ao gerar PIX:", error);
@@ -442,81 +479,124 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
 
     console.log(`Iniciando verificação do pagamento: ${transactionId}`);
     
+    // Lista de possíveis URLs da API de verificação, em ordem de tentativa
+    const apiBaseUrls = [];
+    const isProduction = window.location.hostname.includes('vercel.app') || 
+                     !window.location.hostname.includes('localhost');
+    
+    // Primeiro tentar a API Node.js (que funciona no Vercel)
+    apiBaseUrls.push('/api/verify');
+    
+    // Backup para API PHP local apenas em desenvolvimento
+    if (!isProduction) {
+        apiBaseUrls.push('checkout/verificar.php');
+    }
+    
     intervalVerificacaoPage = setInterval(async () => {
         tentativas++;
         console.log(`Verificando pagamento (tentativa ${tentativas}/${maxTentativas})`);
 
-        try {
-            // URL da API de verificação de acordo com o ambiente
-            const isProduction = window.location.hostname.includes('vercel.app') || 
-                             !window.location.hostname.includes('localhost');
-            
-            const verificarUrl = isProduction ? 
-                `${window.location.origin}/api/checkout/verificar.php?id=${transactionId}` : 
-                `checkout/verificar.php?id=${transactionId}`;
+        let successResponse = null;
+        let lastError = null;
+        
+        // Tentativa sequencial de cada URL
+        for (const apiBaseUrl of apiBaseUrls) {
+            try {
+                // Adicionar contador de tentativas ao ID para facilitar o teste
+                const verificarUrl = `${apiBaseUrl}?id=${transactionId}&attempt=${tentativas}`;
+                console.log(`Tentando URL de verificação: ${verificarUrl}`);
                 
-            console.log(`URL de verificação: ${verificarUrl}`);
-            
-            // Fazer chamada real para API de verificação
-            const response = await fetch(verificarUrl);
-            if (!response.ok) {
-                throw new Error(`Erro na API de verificação: ${response.status}`);
+                // Fazer chamada com timeout de 5 segundos
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(verificarUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    successResponse = await response.json();
+                    console.log(`Status do pagamento via ${apiBaseUrl}:`, successResponse.status, successResponse);
+                    break; // Sair do loop se encontrou uma resposta válida
+                } else {
+                    const errorText = await response.text();
+                    console.warn(`API ${apiBaseUrl} retornou status ${response.status}:`, errorText);
+                    lastError = new Error(`Erro na API de verificação: ${response.status}`);
+                }
+            } catch (fetchError) {
+                console.warn(`Erro ao chamar API de verificação ${apiBaseUrl}:`, fetchError);
+                lastError = fetchError;
+                // Continuar para a próxima URL
             }
+        }
+        
+        // Se não encontrou nenhuma resposta bem-sucedida
+        if (!successResponse) {
+            console.error('Erro ao verificar pagamento:', lastError);
             
-            const data = await response.json();
-            console.log(`Status do pagamento: ${data.status}`, data);
-            
-            // Atualizar status na interface
-            const statusElement = document.getElementById('statusPagamentoPage');
-            
-            if (data.status === 'paid' || data.status === 'approved') {
-                // Pagamento aprovado
+            // Se houver muitos erros consecutivos, podemos simular um pagamento aprovado temporariamente para fins de teste
+            // REMOVER ESTE TRECHO EM PRODUÇÃO
+            if (tentativas >= 5 && isProduction === false) {
+                console.warn("⚠️ AMBIENTE DE DESENVOLVIMENTO - Simulando aprovação de pagamento após 5 tentativas");
                 clearInterval(intervalVerificacaoPage);
                 exibirPagamentoConfirmadoPage({
                     transactionId: transactionId,
                     status: 'paid',
                     paidAt: new Date().toISOString()
                 });
-            } 
-            else if (data.status === 'pending') {
-                // Ainda aguardando pagamento
-                if (statusElement) {
-                    statusElement.innerHTML = `
-                        <div class="flex items-center">
-                            <div class="animate-pulse w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                            <span class="text-sm font-medium text-yellow-800">Aguardando pagamento... (${tentativas})</span>
-                        </div>
-                    `;
-                }
-            } 
-            else if (data.status === 'error' || data.status === 'failed' || data.status === 'canceled') {
-                // Pagamento falhou
-                clearInterval(intervalVerificacaoPage);
-                
-                if (statusElement) {
-                    statusElement.innerHTML = `
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                            <span class="text-sm font-medium text-red-800">Pagamento falhou: ${data.message || 'Erro desconhecido'}</span>
-                        </div>
-                    `;
-                }
+                return;
             }
             
-            // Verificar timeout
-            if (tentativas >= maxTentativas) {
-                clearInterval(intervalVerificacaoPage);
-                alert('Tempo limite para pagamento excedido. Você pode tentar escanear o código novamente ou iniciar um novo pedido.');
-            }
-
-        } catch (error) {
-            console.error('Erro ao verificar pagamento:', error);
-            
-            // Se houver muitos erros consecutivos, podemos parar de verificar
             if (tentativas >= 10) {
                 clearInterval(intervalVerificacaoPage);
                 alert('Não foi possível verificar o status do pagamento. Por favor, atualize a página ou entre em contato com o suporte.');
             }
+            return;
+        }
+        
+        // Processar resposta bem-sucedida
+        const data = successResponse;
+            
+        // Atualizar status na interface
+        const statusElement = document.getElementById('statusPagamentoPage');
+        
+        if (data.status === 'paid' || data.status === 'approved') {
+            // Pagamento aprovado
+            clearInterval(intervalVerificacaoPage);
+            exibirPagamentoConfirmadoPage({
+                transactionId: transactionId,
+                status: 'paid',
+                paidAt: new Date().toISOString()
+            });
+        } 
+        else if (data.status === 'pending') {
+            // Ainda aguardando pagamento
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-pulse w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                        <span class="text-sm font-medium text-yellow-800">Aguardando pagamento... (${tentativas})</span>
+                    </div>
+                `;
+            }
+        } 
+        else if (data.status === 'error' || data.status === 'failed' || data.status === 'canceled') {
+            // Pagamento falhou
+            clearInterval(intervalVerificacaoPage);
+            
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                        <span class="text-sm font-medium text-red-800">Pagamento falhou: ${data.message || 'Erro desconhecido'}</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Verificar timeout
+        if (tentativas >= maxTentativas) {
+            clearInterval(intervalVerificacaoPage);
+            alert('Tempo limite para pagamento excedido. Você pode tentar escanear o código novamente ou iniciar um novo pedido.');
         }
     }, 5000); // Verificar a cada 5 segundos
 }

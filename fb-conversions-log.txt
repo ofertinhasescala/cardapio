@@ -1,0 +1,4 @@
+=== Facebook Conversions API Log ===
+
+[2025-07-25 10:32:01] Event: ViewContent, ID: event_68835d21197ed4.51513665, Response: {"response":{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":2804007,"is_transient":false,"error_user_title":"Endere\u00e7o IP inv\u00e1lido","error_user_msg":"O endere\u00e7o IP inserido \u00e9 inv\u00e1lido. Insira um endere\u00e7o IP v\u00e1lido.","fbtrace_id":"AlEIjw1AokIO5nNZOcqSkKr"}},"http_code":400}
+[2025-07-25 10:32:13] Event: AddPaymentInfo, ID: event_68835d2d5d7db9.69630395, Response: {"response":{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":2804007,"is_transient":false,"error_user_title":"Endere\u00e7o IP inv\u00e1lido","error_user_msg":"O endere\u00e7o IP inserido \u00e9 inv\u00e1lido. Insira um endere\u00e7o IP v\u00e1lido.","fbtrace_id":"AYnIhT5QtMbwI2v5iq3DZJV"}},"http_code":400}

@@ -266,11 +266,24 @@ function fecharTodosModais() {
 
 // Funções de produtos
 function carregarProdutos() {
+    // Verificar se estamos na página principal (com seções de produtos)
+    const container = document.getElementById('secoesProdutos');
+    if (!container) {
+        console.log('Elemento secoesProdutos não encontrado. Provavelmente não estamos na página principal.');
+        return;
+    }
+    
     carregarSecoesProdutos();
 }
 
 function carregarSecoesProdutos() {
     const container = document.getElementById('secoesProdutos');
+    // Verificação dupla de segurança
+    if (!container) {
+        console.log('Elemento secoesProdutos não encontrado na função carregarSecoesProdutos.');
+        return;
+    }
+    
     container.innerHTML = '';
     
     Object.keys(produtos).forEach(categoriaKey => {

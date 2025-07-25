@@ -1,0 +1,22 @@
+# Habilitar todos os métodos HTTP
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirecionar todas as solicitações para o index.php correspondente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^checkout/(.*)$ checkout/index.php [L,QSA]
+    RewriteRule ^webhook/(.*)$ webhook/index.php [L,QSA]
+    RewriteRule ^fb-conversions-api/(.*)$ fb-conversions-api/index.php [L,QSA]
+    
+    # Permitir todos os métodos HTTP (GET, POST, PUT, DELETE)
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    Header always set Access-Control-Max-Age "86400"
+</IfModule>
+
+# Definir tipo de conteúdo para PHP
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch> 
