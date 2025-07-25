@@ -1,0 +1,386 @@
+// ===== CONFIGURAÇÃO DA LOJA =====
+const LOJA_CONFIG = {
+    nome: "Atelier Phamela Gourmet",
+    logo: "logo.png",
+    banner: "/product/banner_de_morangos.jpg", // Usando a nova imagem de morangos brilhantes
+    tempoEntrega: "30-45 min",
+    taxaEntrega: "R$ 15,00",
+    entregaGratis: "Grátis",
+    descricao: "Doces artesanais feitos com muito carinho",
+    avaliacao: 4.9,
+    totalAvaliacoes: 939,
+    distancia: "2,3 km",
+    nivel: "Nível 4 de 5",
+    instagram: "https://www.instagram.com/phamela.gourmetofc/",
+    cores: {
+        primaria: "#FECEE5",
+        secundaria: "#CDAD73",
+        destaque: "#FFFFFF"
+    }
+};
+
+// ===== CATEGORIAS DE PRODUTOS =====
+const CATEGORIAS_CONFIG = [
+    {
+        id: 'frutasDoAmor',
+        nome: 'Frutas do Amor',
+        icone: '🍓',
+        ativo: true
+    },
+    {
+        id: 'combosEspeciais',
+        nome: 'Combos Especiais',
+        icone: '🎁',
+        ativo: true,
+        destaque: true
+    },
+    {
+        id: 'bolosEDoces',
+        nome: 'Bolos & Doces',
+        icone: '🍰',
+        ativo: true
+    },
+    {
+        id: 'promocoesEspeciais',
+        nome: 'Promoções Especiais',
+        icone: '🔥',
+        ativo: true,
+        destaque: true
+    }
+];
+
+// ===== PRODUTOS REAIS =====
+const PRODUTOS_CONFIG = {
+    // FRUTAS DO AMOR
+    frutasDoAmor: [
+        // MORANGOS DO AMOR
+        {
+            id: 'kit-3-morangos',
+            nome: 'Kit 3 morangos do amor',
+            tipo: 'morango',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 29.80,
+            precoPromocional: 19.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'images/produtos/kit_3morangos.png',
+            disponivel: true,
+            descricao: 'Deliciosos morangos do amor cobertos com chocolate'
+        },
+        {
+            id: 'kit-6-morangos',
+            nome: 'Kit 6 morangos do amor',
+            tipo: 'morango',
+            tamanho: 'Grande',
+            quantidade: 6,
+            precoOriginal: 45.80,
+            precoPromocional: 29.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'images/produtos/kit_6morangos.png',
+            disponivel: true,
+            descricao: 'Kit com 6 deliciosos morangos do amor cobertos com chocolate'
+        },
+        // UVAS DO AMOR
+        {
+            id: 'kit-3-uvas',
+            nome: 'Kit 3 uvas do amor',
+            tipo: 'uva',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 29.80,
+            precoPromocional: 19.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'images/produtos/kit_4uvas.png', // Usando a imagem de 4 uvas disponível
+            disponivel: true,
+            descricao: 'Uvas do amor cobertas com chocolate especial'
+        },
+        {
+            id: 'kit-4-uvas',
+            nome: 'Kit 4 uvas do amor',
+            tipo: 'uva',
+            tamanho: 'Grande',
+            quantidade: 4,
+            precoOriginal: 45.80,
+            precoPromocional: 24.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'images/produtos/kit_4uvas.png',
+            disponivel: true,
+            descricao: 'Kit com 4 uvas do amor cobertas com chocolate especial'
+        },
+        // MARACUJÁ DO AMOR
+        {
+            id: 'kit-3-maracuja',
+            nome: 'Kit 3 maracujá do amor',
+            tipo: 'maracuja',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 29.80,
+            precoPromocional: 19.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Maracujá do amor com cobertura de chocolate'
+        },
+        {
+            id: 'kit-4-maracuja',
+            nome: 'Kit 4 maracujá do amor',
+            tipo: 'maracuja',
+            tamanho: 'Grande',
+            quantidade: 4,
+            precoOriginal: 45.80,
+            precoPromocional: 24.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Kit com 4 maracujá do amor com cobertura de chocolate'
+        },
+        // ABACAXI DO AMOR
+        {
+            id: 'kit-3-abacaxi',
+            nome: 'Kit 3 abacaxi do amor',
+            tipo: 'abacaxi',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 29.80,
+            precoPromocional: 19.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Abacaxi do amor coberto com chocolate tropical'
+        },
+        {
+            id: 'kit-4-abacaxi',
+            nome: 'Kit 4 abacaxi do amor',
+            tipo: 'abacaxi',
+            tamanho: 'Grande',
+            quantidade: 4,
+            precoOriginal: 45.80,
+            precoPromocional: 24.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Kit com 4 abacaxi do amor coberto com chocolate tropical'
+        },
+        // MORANGO DO AMOR DE PISTACHE
+        {
+            id: 'kit-3-morango-pistache',
+            nome: 'Kit 3 morango do amor de pistache',
+            tipo: 'morango-pistache',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 32.80,
+            precoPromocional: 22.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1464454709131-ffd692591ee5?w=400&h=300&fit=crop',
+            disponivel: true,
+            destaque: true,
+            descricao: 'Morangos do amor com cobertura especial de pistache'
+        },
+        {
+            id: 'kit-4-morango-pistache',
+            nome: 'Kit 4 morango do amor de pistache',
+            tipo: 'morango-pistache',
+            tamanho: 'Grande',
+            quantidade: 4,
+            precoOriginal: 48.80,
+            precoPromocional: 27.99,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1464454709131-ffd692591ee5?w=400&h=300&fit=crop',
+            disponivel: true,
+            destaque: true,
+            descricao: 'Kit com 4 morangos do amor com cobertura especial de pistache'
+        },
+        // BROWNIE DO AMOR
+        {
+            id: 'kit-3-brownie',
+            nome: 'Kit 3 brownie do amor',
+            tipo: 'brownie',
+            tamanho: 'Grande',
+            quantidade: 3,
+            precoOriginal: 32.90,
+            precoPromocional: 17.90,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Brownies do amor com chocolate especial'
+        },
+        {
+            id: 'kit-4-brownie',
+            nome: 'Kit 4 brownie do amor',
+            tipo: 'brownie',
+            tamanho: 'Grande',
+            quantidade: 4,
+            precoOriginal: 48.90,
+            precoPromocional: 27.90,
+            categoria: 'frutas-do-amor',
+            imagem: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop',
+            disponivel: true,
+            descricao: 'Kit com 4 brownies do amor com chocolate especial'
+        }
+    ],
+
+    // COMBOS ESPECIAIS
+    combosEspeciais: [
+        {
+            id: 'combo-frutas-chocolate',
+            nome: 'Combo Frutas do Amor',
+            tipo: 'combo',
+            tamanho: 'Grande',
+            precoOriginal: 89.90,
+            precoPromocional: 69.90,
+            categoria: 'combos-especiais',
+            imagem: 'images/produtos/kit_12morangos_kit_4uvas.png',
+            disponivel: true,
+            descricao: 'Kit com 12 morangos e 4 uvas do amor cobertos com chocolate especial'
+        },
+        {
+            id: 'combo-festa',
+            nome: 'Combo Festa',
+            tipo: 'combo',
+            tamanho: 'Grande',
+            precoOriginal: 109.90,
+            precoPromocional: 89.90,
+            categoria: 'combos-especiais',
+            imagem: 'images/produtos/mini_naked.png',
+            disponivel: true,
+            destaque: true,
+            descricao: 'Mini naked cake + 8 docinhos gourmet + 6 morangos especiais'
+        }
+    ],
+
+    // BOLOS & DOCES
+    bolosEDoces: [
+        {
+            id: 'bolo-chocolate-morango',
+            nome: 'Bolo de Chocolate com Morangos',
+            tipo: 'bolo',
+            tamanho: 'Médio',
+            precoOriginal: 59.90,
+            precoPromocional: 49.90,
+            categoria: 'bolos-e-doces',
+            imagem: 'images/produtos/bolo_chocolate_com_morango.png',
+            disponivel: true,
+            descricao: 'Delicioso bolo de chocolate decorado com morangos frescos'
+        },
+        {
+            id: 'vulcao-ninho',
+            nome: 'Vulcão de Leite Ninho',
+            tipo: 'bolo',
+            tamanho: 'Individual',
+            precoOriginal: 19.90,
+            precoPromocional: 15.90,
+            categoria: 'bolos-e-doces',
+            imagem: 'images/produtos/Ninho_vulcao.png',
+            disponivel: true,
+            destaque: true,
+            descricao: 'Incrível vulcão de leite ninho com recheio especial'
+        },
+        {
+            id: 'pudim-gourmet',
+            nome: 'Pudim Gourmet',
+            tipo: 'doce',
+            tamanho: 'Médio',
+            precoOriginal: 29.90,
+            precoPromocional: 24.90,
+            categoria: 'bolos-e-doces',
+            imagem: 'images/produtos/Pudim.jpg',
+            disponivel: true,
+            descricao: 'Pudim gourmet caseiro com calda especial'
+        }
+    ],
+
+    // PROMOÇÕES ESPECIAIS
+    promocoesEspeciais: [
+        {
+            id: 'kit-promocional-12-morangos',
+            nome: 'Kit Promocional 12 Morangos',
+            tipo: 'promocao',
+            tamanho: 'Grande',
+            precoOriginal: 69.90,
+            precoPromocional: 49.90,
+            desconto: 30,
+            categoria: 'promocoes-especiais',
+            imagem: 'images/produtos/kit_12morangos_kit_4uvas.png',
+            disponivel: true,
+            destaque: true,
+            limitado: true,
+            descricao: 'Kit promocional com 12 deliciosos morangos do amor - Oferta por tempo limitado!'
+        },
+        {
+            id: 'combo-fim-de-semana',
+            nome: 'Combo Fim de Semana',
+            tipo: 'promocao',
+            tamanho: 'Grande',
+            precoOriginal: 119.90,
+            precoPromocional: 89.90,
+            desconto: 25,
+            categoria: 'promocoes-especiais',
+            imagem: 'images/produtos/mini_naked.png',
+            disponivel: true,
+            destaque: true,
+            descricao: 'Mini naked cake + Kit com 12 morangos - Perfeito para o fim de semana!'
+        },
+        {
+            id: 'pudim-promocional',
+            nome: 'Pudim Promocional',
+            tipo: 'promocao',
+            tamanho: 'Grande',
+            precoOriginal: 39.90,
+            precoPromocional: 29.90,
+            desconto: 25,
+            categoria: 'promocoes-especiais',
+            imagem: 'images/produtos/Pudim.jpg',
+            disponivel: true,
+            limitado: true,
+            descricao: 'Pudim gourmet tamanho grande - Promoção especial!'
+        }
+    ]
+};
+
+// ===== LOCALIZAÇÃO =====
+const LOCALIZACAO_CONFIG = {
+    estados: [
+        { sigla: 'SP', nome: 'São Paulo' },
+        { sigla: 'RJ', nome: 'Rio de Janeiro' },
+        { sigla: 'MG', nome: 'Minas Gerais' },
+        { sigla: 'RS', nome: 'Rio Grande do Sul' },
+        { sigla: 'PR', nome: 'Paraná' },
+        { sigla: 'SC', nome: 'Santa Catarina' }
+    ],
+    cidades: {
+        'SP': ['São Paulo', 'Campinas', 'Santos', 'Ribeirão Preto'],
+        'RJ': ['Rio de Janeiro', 'Niterói', 'Petrópolis', 'Nova Friburgo'],
+        'MG': ['Belo Horizonte', 'Uberlândia', 'Juiz de Fora', 'Contagem'],
+        'RS': ['Porto Alegre', 'Caxias do Sul', 'Pelotas', 'Santa Maria'],
+        'PR': ['Curitiba', 'Londrina', 'Maringá', 'Ponta Grossa'],
+        'SC': ['Florianópolis', 'Joinville', 'Blumenau', 'Chapecó']
+    }
+};
+
+// ===== FUNÇÃO PARA ADICIONAR PRODUTOS DINAMICAMENTE =====
+function adicionarProdutos(categoria, novosProdutos) {
+    if (PRODUTOS_CONFIG[categoria]) {
+        PRODUTOS_CONFIG[categoria] = [...PRODUTOS_CONFIG[categoria], ...novosProdutos];
+    } else {
+        console.warn(`Categoria ${categoria} não encontrada`);
+    }
+}
+
+// ===== FUNÇÃO PARA SUBSTITUIR PRODUTOS DE UMA CATEGORIA =====
+function substituirProdutos(categoria, novosProdutos) {
+    if (PRODUTOS_CONFIG[categoria]) {
+        PRODUTOS_CONFIG[categoria] = novosProdutos;
+    } else {
+        console.warn(`Categoria ${categoria} não encontrada`);
+    }
+}
+
+// ===== FUNÇÃO PARA OBTER TODOS OS PRODUTOS =====
+function obterTodosProdutos() {
+    return Object.values(PRODUTOS_CONFIG).flat();
+}
+
+// ===== FUNÇÃO PARA OBTER PRODUTOS POR CATEGORIA =====
+function obterProdutosPorCategoria(categoria) {
+    return PRODUTOS_CONFIG[categoria] || [];
+}

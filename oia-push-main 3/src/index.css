@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Phamela Gourmet - Frutas do Amor Brand Colors */
+    --background: 0 0% 98%;
+    --foreground: 25 15% 25%; /* Marrom chocolate para textos */
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 15% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 15% 25%;
+
+    /* Primary - Dourado elegante #C8A364 */
+    --primary: 38 42% 59%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 38 42% 54%;
+    
+    /* Accent - Rosa suave #FECEE5 */
+    --accent: 330 85% 92%;
+    --accent-foreground: 25 15% 25%;
+
+    /* Secondary - Rosa mais vibrante #E91E63 para CTAs */
+    --secondary: 340 82% 52%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted - Cinza muito claro #F8F8F8 */
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 40%;
+
+    /* Destructive - Vermelho suave #FF6B6B */
+    --destructive: 0 79% 70%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 330 85% 90%; /* Rosa muito claro para bordas */
+    --input: 0 0% 97%;
+    --ring: 38 42% 59%; /* Dourado para focus */
+
+    --radius: 8px;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans font-bold;
+  }
+
+  /* Phamela Gourmet - Frutas do Amor Custom Gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+
+  .gradient-warm {
+    background: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+  }
+
+  .gradient-frutas-amor {
+    background: linear-gradient(135deg, #FECEE5, #C8A364);
+  }
+
+  .gradient-delicate {
+    background: linear-gradient(180deg, #FECEE5, #FFFFFF);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Custom shadows */
+  .shadow-warm {
+    box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.3);
+  }
+
+  .shadow-card {
+    box-shadow: 0 2px 20px -4px hsl(0 0% 0% / 0.1);
+  }
+
+  /* Scrollbar customization for horizontal scroll */
+  .scroll-horizontal::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .scroll-horizontal::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  .scroll-horizontal::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 4px;
+  }
+
+  /* Hide scrollbar completely for category nav */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text truncation */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Tipografia Phamela Gourmet */
+  .text-h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: hsl(var(--primary));
+  }
+
+  .text-h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: hsl(25 15% 25%);
+  }
+
+  .text-h3 {
+    font-size: 20px;
+    font-weight: 500;
+    color: hsl(25 15% 25%);
+  }
+
+  .text-body {
+    font-size: 16px;
+    font-weight: 400;
+    color: hsl(0 0% 20%);
+  }
+
+  .text-small {
+    font-size: 14px;
+    font-weight: 400;
+    color: hsl(0 0% 40%);
+  }
+  
+  /* Animações personalizadas */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Efeito pulsante para combos especiais */
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+      transform: scale(1.02);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Estilos específicos para Frutas do Amor */
+  .card-frutas-amor {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 20px -4px rgba(254, 206, 229, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .card-frutas-amor:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -8px rgba(200, 163, 100, 0.4);
+    border: 2px solid #C8A364;
+  }
+
+  .badge-mais-vendido {
+    background: #E91E63;
+    color: white;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+
+  .badge-combo-especial {
+    background: #C8A364;
+    color: white;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+
+  .badge-novo {
+    background: #4CAF50;
+    color: white;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+
+  .price-original {
+    text-decoration: line-through;
+    color: hsl(0 0% 60%);
+    font-size: 14px;
+  }
+
+  .price-promocional {
+    color: #C8A364;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  /* Animação delicada para elementos das frutas do amor */
+  @keyframes float-delicate {
+    0%, 100% { 
+      transform: translateY(0px);
+    }
+    50% { 
+      transform: translateY(-3px);
+    }
+  }
+
+  .animate-float-delicate {
+    animation: float-delicate 3s ease-in-out infinite;
+  }
+}
+
+/* Esconder scrollbar mas manter funcionalidade */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE e Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari e Opera */
+}
+
+/* Estilos para o modal com blur */
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}

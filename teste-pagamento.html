@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Pagamento</title>
+</head>
+
+<body>
+    <h1>Teste de Pagamento Monetrix</h1>
+
+    <button onclick="testarConectividade()">Testar Conectividade</button>
+    <button onclick="testarPagamento()">Testar Pagamento</button>
+
+    <div id="resultado" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+
+    <script>
+        async function testarConectividade() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = 'Testando conectividade...';
+
+            try {
+                const response = await fetch('./checkout/teste-simples.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ teste: 'conectividade' })
+                });
+
+                const data = await response.json();
+                resultado.innerHTML = `
+                    <h3>✅ Conectividade OK</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultado.innerHTML = `
+                    <h3>❌ Erro de Conectividade</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testarPagamento() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = 'Testando pagamento...';
+
+            const dadosTeste = {
+                nome: 'Cliente Teste',
+                telefone: '(11) 99999-9999',
+                email: 'teste@email.com',
+                cpf: '12345678901',
+                valor: 1000, // R$ 10,00 em centavos
+                utm_source: 'teste',
+                utm_campaign: 'teste_monetrix'
+            };
+
+            try {
+                const response = await fetch('./checkout/pagamento.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dadosTeste)
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+
+                const data = JSON.parse(responseText);
+
+                if (data.success) {
+                    resultado.innerHTML = `
+                        <h3>✅ Pagamento Criado com Sucesso</h3>
+                        <p><strong>Token:</strong> ${data.token}</p>
+                        <p><strong>Valor:</strong> R$ ${(data.valor / 100).toFixed(2)}</p>
+                        ${data.pixCode ? `<p><strong>PIX Code:</strong> ${data.pixCode.substring(0, 50)}...</p>` : ''}
+                        ${data.qrCodeUrl ? `<p><strong>QR Code:</strong> <img src="${data.qrCodeUrl}" width="200"></p>` : ''}
+                    `;
+                } else {
+                    resultado.innerHTML = `
+                        <h3>❌ Erro no Pagamento</h3>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                resultado.innerHTML = `
+                    <h3>❌ Erro ao Testar Pagamento</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

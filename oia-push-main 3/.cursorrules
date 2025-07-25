@@ -1,0 +1,348 @@
+# Cursor Rules para Projeto Óia Push - React E-commerce
+
+## 🎯 Contexto do Projeto
+Você é um especialista em desenvolvimento React, TypeScript, e sistemas de e-commerce com foco em tracking de conversões e campanhas UTM. Este projeto é um cardápio digital para hamburgeria com sistema de carrinho, checkout e rastreamento avançado de marketing.
+
+## 🚀 Stack Tecnológica Principal
+- **Frontend**: React 18.3.1 + TypeScript 5.5.3 + Vite 5.4.1
+- **Estado**: Zustand 5.0.6 (com persistência localStorage)
+- **Estilização**: Tailwind CSS 3.4.11 + Shadcn/UI + Radix UI
+- **Roteamento**: React Router Dom 6.26.2
+- **Cache/Requests**: TanStack Query 5.56.2
+- **Formulários**: React Hook Form 7.53.0 + Zod 3.23.8
+- **Animações**: Framer Motion 12.23.3
+- **HTTP**: Axios 1.10.0
+
+## 📁 Estrutura de Pastas Obrigatória
+```
+src/
+├── components/     # Componentes reutilizáveis
+├── pages/         # Páginas da aplicação
+├── hooks/         # Hooks customizados
+├── services/      # Serviços (APIs, integração)
+├── types/         # Definições TypeScript
+├── utils/         # Funções utilitárias
+├── assets/        # Recursos estáticos
+└── lib/          # Configurações e bibliotecas
+```
+
+## 🎨 Padrões de Código
+
+### Componentes React
+```tsx
+// ✅ SEMPRE use este padrão
+import { FC } from 'react'
+import { ComponentNameProps } from './types'
+
+const ComponentName: FC<ComponentNameProps> = ({ 
+  prop1,
+  prop2,
+  ...props 
+}) => {
+  // Lógica do componente
+
+  return (
+    <div className="tailwind-classes">
+      {/* JSX aqui */}
+    </div>
+  )
+}
+
+export default ComponentName
+```
+
+### Hooks Zustand
+```tsx
+// ✅ SEMPRE use este padrão para stores Zustand
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+interface StoreState {
+  // estado aqui
+}
+
+interface StoreActions {
+  // ações aqui
+}
+
+export const useStore = create<StoreState & StoreActions>()(
+  persist(
+    (set, get) => ({
+      // implementação aqui
+    }),
+    {
+      name: 'store-name',
+      // adicione partialize se necessário
+    }
+  )
+)
+```
+
+### Serviços
+```tsx
+// ✅ SEMPRE use este padrão para serviços
+class ServiceName {
+  private static instance: ServiceName
+  
+  static getInstance(): ServiceName {
+    if (!ServiceName.instance) {
+      ServiceName.instance = new ServiceName()
+    }
+    return ServiceName.instance
+  }
+
+  async methodName(params: ParamsType): Promise<ReturnType> {
+    // implementação com try/catch e retry logic
+  }
+}
+
+export const serviceName = ServiceName.getInstance()
+```
+
+## 🔥 Regras Específicas do Projeto
+
+### Sistema UTM (CRÍTICO)
+```tsx
+// ✅ SEMPRE preserve parâmetros UTM em links internos
+import { useUtm } from '@/hooks/useUtm'
+
+const UtmPreservingLink: FC<LinkProps> = ({ to, children, ...props }) => {
+  const { getUtmParams } = useUtm()
+  const utmParams = getUtmParams()
+  
+  const urlWithUtm = useMemo(() => {
+    const url = new URL(to, window.location.origin)
+    Object.entries(utmParams).forEach(([key, value]) => {
+      if (value) url.searchParams.set(key, value)
+    })
+    return url.pathname + url.search
+  }, [to, utmParams])
+
+  return <Link to={urlWithUtm} {...props}>{children}</Link>
+}
+```
+
+### Carrinho de Compras
+```tsx
+// ✅ SEMPRE use este padrão para itens do carrinho
+interface CartItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  customizations?: Record<string, any>
+  image?: string
+  category?: string
+}
+
+// ✅ SEMPRE implemente estas funções no store do carrinho
+const useCartStore = create<CartState & CartActions>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (item) => { /* lógica de adição */ },
+      removeItem: (itemId) => { /* lógica de remoção */ },
+      updateQuantity: (itemId, quantity) => { /* lógica de atualização */ },
+      clearCart: () => set({ items: [] }),
+      getTotalPrice: () => { /* cálculo do total */ },
+      getTotalItems: () => { /* cálculo de itens */ },
+    }),
+    { name: 'cart-storage' }
+  )
+)
+```
+
+### Formulários com React Hook Form + Zod
+```tsx
+// ✅ SEMPRE use este padrão para formulários
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const schema = z.object({
+  // definição do schema
+})
+
+type FormData = z.infer<typeof schema>
+
+const FormComponent: FC = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = async (data: FormData) => {
+    // lógica de submit
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {/* campos do formulário */}
+    </form>
+  )
+}
+```
+
+## 🚨 REGRAS CRÍTICAS - NUNCA FAÇA ISSO
+
+### ❌ NUNCA use estas práticas:
+```tsx
+// ❌ NUNCA use useState para dados que precisam persistir
+const [cartItems, setCartItems] = useState([]) // Use Zustand!
+
+// ❌ NUNCA esqueça de preservar UTM em navegação
+<Link to="/checkout"> // Sempre use UtmPreservingLink!
+
+// ❌ NUNCA faça requisições sem tratamento de erro
+const data = await axios.get('/api/data') // Sempre use try/catch!
+
+// ❌ NUNCA use any em TypeScript
+const handleClick = (event: any) => {} // Sempre type corretamente!
+
+// ❌ NUNCA coloque lógica de negócio em componentes UI
+const ProductCard = () => {
+  // ❌ lógica complexa aqui
+  const calculateDiscount = () => {} // Mova para hook ou service!
+}
+```
+
+## 🎯 Otimizações Específicas
+
+### Performance
+```tsx
+// ✅ SEMPRE use memo para componentes pesados
+import { memo, useMemo, useCallback } from 'react'
+
+const ExpensiveComponent = memo<Props>(({ data, onAction }) => {
+  const processedData = useMemo(() => {
+    return data.map(/* processamento pesado */)
+  }, [data])
+
+  const handleAction = useCallback((id: string) => {
+    onAction(id)
+  }, [onAction])
+
+  return <div>{/* render */}</div>
+})
+```
+
+### Error Boundaries
+```tsx
+// ✅ SEMPRE implemente Error Boundaries para componentes críticos
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback />
+    }
+    return this.props.children
+  }
+}
+```
+
+## 📱 Responsividade com Tailwind
+```tsx
+// ✅ SEMPRE use classes responsivas do Tailwind
+<div className="
+  grid grid-cols-1 gap-4
+  sm:grid-cols-2 sm:gap-6
+  md:grid-cols-3 md:gap-8
+  lg:grid-cols-4 lg:gap-10
+  xl:grid-cols-5
+">
+  {/* conteúdo */}
+</div>
+```
+
+## 🧪 Testing Patterns
+```tsx
+// ✅ SEMPRE teste componentes críticos
+import { render, screen, fireEvent } from '@testing-library/react'
+import { vi } from 'vitest'
+
+describe('ProductCard', () => {
+  it('should add item to cart when clicked', async () => {
+    const mockAddItem = vi.fn()
+    render(<ProductCard product={mockProduct} onAddToCart={mockAddItem} />)
+    
+    const addButton = screen.getByRole('button', { name: /adicionar/i })
+    fireEvent.click(addButton)
+    
+    expect(mockAddItem).toHaveBeenCalledWith(mockProduct)
+  })
+})
+```
+
+## 📊 Monitoring e Analytics
+```tsx
+// ✅ SEMPRE implemente tracking de conversões
+const trackConversion = async (event: ConversionEvent) => {
+  try {
+    await utmifyService.trackConversion({
+      event,
+      utmParams: getUtmParams(),
+      timestamp: new Date().toISOString(),
+    })
+  } catch (error) {
+    // Armazene para retry posterior
+    await storeFailedConversion(event)
+  }
+}
+```
+
+## 🔒 Validação e Segurança
+```tsx
+// ✅ SEMPRE valide dados de entrada
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '')
+}
+
+// ✅ SEMPRE use validação de schema
+const validateCartItem = (item: unknown): CartItem => {
+  return cartItemSchema.parse(item)
+}
+```
+
+## 🚀 Deploy e Build
+```bash
+# ✅ SEMPRE verifique antes do deploy
+npm run type-check    # Verificação de tipos
+npm run lint         # Linting
+npm run test        # Testes
+npm run build       # Build de produção
+```
+
+## 💡 Dicas de Produtividade
+
+1. **Use snippets personalizados** para padrões frequentes
+2. **Configure auto-imports** para sua estrutura de pastas
+3. **Use o Cursor Tab** para completar código baseado no contexto
+4. **Aproveite o Chat** para refatorações e otimizações
+5. **Configure formatação automática** no save
+
+## 🎯 Comandos Úteis do Cursor
+
+- `Cmd+K` - Chat rápido
+- `Cmd+L` - Chat com contexto
+- `Cmd+I` - Edição inline
+- `Tab` - Aceitar sugestão
+- `Cmd+Shift+E` - Explain code
+
+---
+
+**Lembre-se**: Sempre priorize a experiência do usuário, performance e rastreamento de conversões. Este projeto é crítico para o negócio do restaurante!

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Rápido - PIX</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .resultado { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste Rápido - PIX Funcionando</h1>
+    
+    <button onclick="testarPix()">Gerar PIX de Teste</button>
+    
+    <div id="resultado"></div>
+
+    <script>
+        async function testarPix() {
+            const resultDiv = document.getElementById('resultado');
+            resultDiv.innerHTML = '<p>🔄 Gerando PIX...</p>';
+
+            const dados = {
+                nome: 'Cliente Teste',
+                telefone: '11999999999',
+                email: 'teste@email.com',
+                cpf: '12345678901',
+                valor: 4998, // R$ 49,98
+                itens: [
+                    {
+                        nome: 'Kit 3 morangos do amor',
+                        quantidade: 1,
+                        precoPromocional: 19.99
+                    },
+                    {
+                        nome: 'Kit 6 morangos do amor',
+                        quantidade: 1,
+                        precoPromocional: 29.99
+                    }
+                ],
+                utm_source: 'teste_rapido',
+                utm_campaign: 'teste_funcionando'
+            };
+
+            try {
+                const response = await fetch('./checkout/pagamento.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = '<div class="resultado success">';
+                    html += '<h3>✅ PIX Gerado com Sucesso!</h3>';
+                    html += `<p><strong>ID:</strong> ${data.token}</p>`;
+                    html += `<p><strong>Valor:</strong> R$ ${(data.valor / 100).toFixed(2)}</p>`;
+                    
+                    if (data.qrCodeUrl) {
+                        html += '<div style="text-align: center; margin: 20px 0;">';
+                        html += '<h4>QR Code PIX:</h4>';
+                        html += `<img src="${data.qrCodeUrl}" alt="QR Code" style="max-width: 300px;">`;
+                        html += '</div>';
+                    }
+                    
+                    if (data.pixCode) {
+                        html += `<p><strong>Código PIX:</strong></p>`;
+                        html += `<pre style="font-size: 12px;">${data.pixCode}</pre>`;
+                    }
+                    
+                    // Mostrar produtos processados
+                    if (data.logs && data.logs.monetrixResponse && data.logs.monetrixResponse.items) {
+                        html += '<h4>📦 Produtos Processados:</h4>';
+                        html += '<ul>';
+                        data.logs.monetrixResponse.items.forEach(item => {
+                            html += `<li><strong>${item.title}</strong> - Qtd: ${item.quantity} - R$ ${(item.unitPrice / 100).toFixed(2)}</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    
+                    html += '</div>';
+                } else {
+                    html = '<div class="resultado error">';
+                    html += '<h3>❌ Erro ao Gerar PIX</h3>';
+                    html += `<p>${data.message}</p>`;
+                    html += '</div>';
+                }
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="resultado error">
+                        <h3>❌ Erro de Conexão</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
