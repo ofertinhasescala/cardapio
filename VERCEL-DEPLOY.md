@@ -49,6 +49,27 @@ Na tela de configuração do projeto, adicione as seguintes variáveis de ambien
 | `DB_PATH` | `/tmp/database.sqlite` | Caminho para o banco de dados SQLite |
 | `FB_PIXEL_ID` | `1404066580873208` | ID do Facebook Pixel |
 | `FB_ACCESS_TOKEN` | `EAAiRE5K8xWsB...` | Token de acesso do Facebook (use seu token completo) |
+# Credenciais da API Monetrix
+API_KEY=pk_ouwx4hvdzP2IcG-qH-KG4tBeF7_rhkba_HYje6SsTjHo5umn
+API_SECRET=sk__Q39xQdSt6qPoM9gOBb5EKXeG0i-3Fo1pMP77BiWS7Fygjng
+
+# Configurações do PIX
+PIX_INTEGRATION_TYPE=monetrix
+PIX_ENDPOINT=https://api.monetrix.store/v1/transactions
+PIX_WEBHOOK_SECRET=seu_webhook_secret_aqui
+PIX_MERCHANT_NAME=Atelier Phamela Gourmet
+PIX_MERCHANT_CITY=São Paulo
+PIX_MERCHANT_ID=seu_merchant_id_aqui
+
+# Configuração do Ambiente
+ENVIRONMENT=production
+
+# Banco de Dados SQLite (caminho para Vercel)
+DB_PATH=/tmp/database.sqlite
+
+# Facebook Pixel (opcional, mas recomendado)
+FB_PIXEL_ID=1404066580873208
+FB_ACCESS_TOKEN=EAAiRE5K8xWsBPMFziWRfy0NKYPvqhzAmMuqGGTdfQRPikqRlXFRDmRRTcL3xD6vjbcQ6zXQZB1ViKHx6GvUSiExWHksTiZBiPYJAVcBJXpmEnkOEMQrjYVRLFFn83iOiKTAx77uoyOqIDt619kSnzXIlZBLKJf9ezmGLOYuwPnfnAiefOdElfBmJJOp1AZDZD
 
 ### 5. Opções de Implantação
 

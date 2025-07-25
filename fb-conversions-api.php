@@ -7,14 +7,20 @@
 
 // Headers para permitir solicitações de origem cruzada (CORS)
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+header("Access-Control-Max-Age: 86400"); // Cache preflight por 24 horas
 header("Content-Type: application/json");
 
 // Responder a solicitações OPTIONS sem processar
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit(0);
 }
+
+// Log da requisição para debug
+error_log("[FB Conversions API] 📝 Método: " . $_SERVER['REQUEST_METHOD']);
+error_log("[FB Conversions API] 📦 Input bruto: " . file_get_contents('php://input'));
 
 // Configurações do Facebook
 define('FB_PIXEL_ID', '1404066580873208');

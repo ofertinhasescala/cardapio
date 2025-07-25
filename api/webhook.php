@@ -1,6 +1,16 @@
 <?php
 // Webhook para receber notificações da Monetrix (PIX)
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Signature');
+header('Access-Control-Max-Age: 86400'); // Cache preflight por 24 horas
+
+// Responder a solicitações OPTIONS sem processar
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
+}
 
 // Habilita o log de erros
 ini_set('display_errors', 0);

@@ -84,15 +84,27 @@ function aplicarCoresMarca() {
 
 // Funções de localização por CEP
 function verificarCacheEndereco() {
-    const enderecoSalvo = localStorage.getItem('endereco_cliente');
-    if (enderecoSalvo) {
-        enderecoCliente = JSON.parse(enderecoSalvo);
-        // Se há endereço salvo, pular modais de localização
-        document.getElementById('modalCEP').classList.add('hidden');
-        atualizarDistanciaLoja();
-    } else {
-        // Mostrar modal de CEP
-        document.getElementById('modalCEP').classList.remove('hidden');
+    try {
+        const enderecoSalvo = localStorage.getItem('endereco_cliente');
+        if (enderecoSalvo) {
+            enderecoCliente = JSON.parse(enderecoSalvo);
+            
+            // Verificar se o elemento existe antes de manipulá-lo
+            const modalCEP = document.getElementById('modalCEP');
+            if (modalCEP) {
+                modalCEP.classList.add('hidden');
+            }
+            
+            atualizarDistanciaLoja();
+        } else {
+            // Verificar se o elemento existe antes de manipulá-lo
+            const modalCEP = document.getElementById('modalCEP');
+            if (modalCEP) {
+                modalCEP.classList.remove('hidden');
+            }
+        }
+    } catch (e) {
+        console.log("Erro ao verificar cache de endereço:", e);
     }
 }
 

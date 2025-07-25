@@ -236,29 +236,30 @@ function validarEtapa2Page() {
     return true;
 }
 
-// Função para iniciar pagamento PIX
 async function iniciarPagamentoPixPage() {
-    document.getElementById('gerandoPixPage').classList.remove('hidden');
-    document.getElementById('pixGeradoPage').classList.add('hidden');
-    document.getElementById('pagamentoConfirmadoPage').classList.add('hidden');
-
     try {
-        // Preparar dados para envio
-        const dadosPagamento = {
-            cliente: dadosCliente,
+        console.log("Iniciando processo de pagamento PIX");
+        
+        document.getElementById('dadosClientePage').classList.add('hidden');
+        document.getElementById('enderecoPage').classList.add('hidden');
+        document.getElementById('gerandoPixPage').classList.remove('hidden');
+        
+        // Dados do pedido
+        const dadosPedido = {
+            nome: document.getElementById('nomeClientePage').value,
+            telefone: document.getElementById('telefoneClientePage').value,
+            email: "cliente@exemplo.com", // Email de exemplo para teste
             endereco: enderecoCliente,
-            itens: carrinho,
-            resumo: calcularResumoCompleto(),
-            valor: calcularResumoCompleto().total * 100, // Valor em centavos
-            nome: dadosCliente.nome,
-            telefone: dadosCliente.telefone,
-            email: dadosCliente.email,
-            cpf: dadosCliente.cpf,
-            utmParams: capturarParametrosUTM()
+            produtos: carrinho,
+            valor: calcularResumoCompleto().total * 100, // em centavos
+            utm_params: getUTMParams() // Captura parâmetros UTM
         };
 
+        console.log("Dados do pedido preparados:", dadosPedido);
+        
         // Rastrear evento de método de pagamento (AddPaymentInfo)
         if (typeof fbPixelTracker !== 'undefined') {
+            console.log("Rastreando evento de AddPaymentInfo");
             fbPixelTracker.addPaymentInfo({
                 method: 'pix',
                 total: calcularResumoCompleto().total,
@@ -266,38 +267,59 @@ async function iniciarPagamentoPixPage() {
             });
         }
 
-        console.log("Enviando dados para API PIX:", dadosPagamento);
-
-        // Fazer a requisição para a API real
-        const response = await fetch('checkout/pagamento.php', {
+        // Enviar dados para API
+        console.log("Enviando dados para API PIX:", dadosPedido);
+        
+        // Verificar a URL da API de acordo com o ambiente
+        const isProduction = window.location.hostname.includes('vercel.app') || 
+                         !window.location.hostname.includes('localhost');
+        
+        let apiUrl = isProduction ? 
+            window.location.origin + '/checkout/pagamento.php' : 
+            'checkout/pagamento.php';
+            
+        console.log("URL da API PIX:", apiUrl);
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify(dadosPagamento)
+            body: JSON.stringify(dadosPedido),
+            mode: 'cors',
+            credentials: 'omit'
         });
 
+        console.log("Resposta da API PIX - Status:", response.status);
+        
         if (!response.ok) {
-            throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+            throw new Error(`Erro na API: ${response.status}`);
         }
-
-        const resposta = await response.json();
-        console.log("Resposta da API PIX:", resposta);
-
-        if (resposta.success) {
-            exibirPixGeradoPage(resposta);
-            iniciarVerificacaoPagamentoPage(resposta.token);
-        } else {
-            throw new Error(resposta.message || 'Erro ao gerar PIX');
+        
+        // Processar resposta da API
+        const dadosPagamento = await response.json();
+        console.log("Dados do pagamento recebidos:", dadosPagamento);
+        
+        if (!dadosPagamento.success) {
+            throw new Error(dadosPagamento.message || "Erro ao gerar PIX");
         }
-
+        
+        // Exibir PIX
+        exibirPixGeradoPage(dadosPagamento);
+        
+        // Iniciar verificação de pagamento
+        setTimeout(() => {
+            iniciarVerificacaoPagamentoPage(dadosPagamento);
+        }, 5000);
+        
     } catch (error) {
-        console.error('Erro ao gerar PIX:', error);
-        alert('Erro ao gerar PIX. Tente novamente: ' + error.message);
-
-        // Voltar para etapa anterior
-        etapaAtualCheckoutPage = 2;
-        mostrarEtapaCheckoutPage(2);
+        console.error("Erro ao gerar PIX:", error);
+        alert(`Erro ao gerar PIX. Tente novamente: ${error.message}`);
+        
+        // Voltar para a etapa anterior
+        document.getElementById('gerandoPixPage').classList.add('hidden');
+        document.getElementById('metodosPagamentoPage').classList.remove('hidden');
     }
 }
 

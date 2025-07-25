@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Meta Pixel Code -->
+    <!-- Meta Pixel Code (Mantemos apenas a inicialização base) -->
     <script>
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -20,8 +20,7 @@
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1404066580873208');
-        fbq('track', 'PageView');
+        // Removemos a inicialização duplicada aqui, ela será feita no fb-pixel.js
     </script>
     <noscript>
         <img height="1" width="1" style="display:none"

@@ -10,12 +10,26 @@
   },
   "routes": [
     { "src": "/checkout/(.*)\\.php", "dest": "/checkout/$1.php" },
+    { "src": "/api/(.*)\\.php", "dest": "/api/$1.php" },
     { "src": "/(.*)\\.php", "dest": "/$1.php" },
     { "src": "/(.*)", "dest": "/$1" }
   ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept" }
+      ]
+    }
+  ],
   "env": {
     "PHP_MEMORY_LIMIT": "512M",
-    "PHP_DISPLAY_ERRORS": "1"
+    "PHP_DISPLAY_ERRORS": "1",
+    "PHP_ALLOW_POST": "1",
+    "PHP_INI_ALLOW_URL_INCLUDE": "1",
+    "VERCEL_PHP_RUNTIME": "vercel-php@0.6.0"
   },
   "build": {
     "env": {

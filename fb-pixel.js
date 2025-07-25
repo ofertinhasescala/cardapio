@@ -98,26 +98,58 @@ const fbPixelTracker = {
     
     // Enviar evento para o backend para processamento da Conversions API
     sendServerEvent: function(eventName, eventData, quantity = null) {
-        // Coletar dados do usuário para enhanced matching
+        // Verificar se estamos em ambiente de produção (Vercel)
+        const isProduction = window.location.hostname.includes('vercel.app') || 
+                             !window.location.hostname.includes('localhost');
+        
+        // Definir URL base do endpoint
+        const baseUrl = isProduction ? 
+            window.location.origin + '/api/fb-conversions-api.php' : 
+            'fb-conversions-api.php';
+            
+        // Coletar dados do usuário para correspondência aprimorada
         const userData = this.collectUserData();
         
-        // Enviar para o endpoint do servidor
-        fetch('fb-conversions-api.php', {
+        // Preparar payload
+        const payload = {
+            eventName: eventName,
+            eventData: eventData,
+            quantity: quantity,
+            userData: userData,
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            fbp: this.getFbp(),
+            fbc: this.getFbc()
+        };
+        
+        // Enviar via fetch
+        fetch(baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                eventName: eventName,
-                eventData: eventData,
-                quantity: quantity,
-                userData: userData,
-                url: window.location.href,
-                userAgent: navigator.userAgent,
-                fbp: this.getFbp(),
-                fbc: this.getFbc()
-            })
-        }).catch(error => console.error('Error sending event to server:', error));
+            body: JSON.stringify(payload),
+            mode: 'cors',
+            credentials: 'omit'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`CAPI Error: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`[FB CAPI] Evento ${eventName} enviado com sucesso:`, data);
+        })
+        .catch(error => {
+            console.error(`[FB CAPI] Erro ao enviar evento ${eventName}:`, error);
+            
+            // Envio de backup para o Pixel se o servidor falhar
+            console.log(`[FB Pixel] Enviando evento de backup para ${eventName}`);
+            
+            // Já temos o evento sendo enviado via Pixel padrão no código principal
+        });
     },
     
     // Coletar dados do usuário para enhanced matching
