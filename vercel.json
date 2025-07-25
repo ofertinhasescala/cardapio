@@ -1,24 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/checkout/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/webhook/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/fb-conversions-api/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/**/*.js": {},
-    "api/checkout/index": {},
-    "api/fb-conversions-api/index": {},
-    "api/index": {},
-    "api/webhook/index": {}
-  },
   "rewrites": [
     { "source": "/checkout/pagamento.php", "destination": "/api/checkout/index.php" },
     { "source": "/checkout/verificar.php", "destination": "/api/checkout/index.php" },
