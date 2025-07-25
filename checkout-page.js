@@ -309,9 +309,12 @@ async function iniciarPagamentoPixPage() {
         // Primeiro tentar a API Node.js (que funciona no Vercel)
         apiUrls.push('/api/payment');
         
+        // APIs alternativas com extensão removida
+        apiUrls.push('/api/checkout/pagamento');
+        
         // Backup para API PHP local apenas em desenvolvimento
         if (!isProduction) {
-            apiUrls.push('checkout/pagamento.php');
+            apiUrls.push('checkout/pagamento');
         }
         
         // Variável para armazenar a resposta bem-sucedida
@@ -487,9 +490,12 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
     // Primeiro tentar a API Node.js (que funciona no Vercel)
     apiBaseUrls.push('/api/verify');
     
+    // APIs alternativas com extensão removida
+    apiBaseUrls.push('/api/checkout/verificar');
+    
     // Backup para API PHP local apenas em desenvolvimento
     if (!isProduction) {
-        apiBaseUrls.push('checkout/verificar.php');
+        apiBaseUrls.push('checkout/verificar');
     }
     
     intervalVerificacaoPage = setInterval(async () => {

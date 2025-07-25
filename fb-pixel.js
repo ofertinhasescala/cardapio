@@ -16,106 +16,110 @@ fbq('track', 'PageView');
 
 // Funções para rastrear eventos avançados
 const fbPixelTracker = {
-    // Rastrear visualização de produto
-    viewProduct: function(productData) {
-        fbq('track', 'ViewContent', {
-            content_name: productData.nome,
-            content_category: productData.categoria,
-            content_ids: [productData.id],
-            content_type: 'product',
-            value: productData.precoPromocional || productData.precoOriginal,
-            currency: 'BRL'
-        });
-        // Enviar para o backend para Conversions API
-        this.sendServerEvent('ViewContent', productData);
-    },
+    pixelId: '1404066580873208',
     
-    // Rastrear adição ao carrinho
-    addToCart: function(productData, quantity = 1) {
-        fbq('track', 'AddToCart', {
-            content_name: productData.nome,
-            content_category: productData.categoria,
-            content_ids: [productData.id],
-            content_type: 'product',
-            value: (productData.precoPromocional || productData.precoOriginal) * quantity,
-            currency: 'BRL',
-            contents: [{
-                id: productData.id,
-                quantity: quantity,
-                item_price: productData.precoPromocional || productData.precoOriginal
-            }]
-        });
-        // Enviar para o backend para Conversions API
-        this.sendServerEvent('AddToCart', productData, quantity);
-    },
-    
-    // Rastrear início do checkout
-    initiateCheckout: function(cartData) {
-        fbq('track', 'InitiateCheckout', {
-            content_ids: cartData.items.map(item => item.id),
-            contents: cartData.items.map(item => ({
-                id: item.id,
-                quantity: item.quantity,
-                item_price: item.price
-            })),
-            num_items: cartData.items.length,
-            value: cartData.total,
-            currency: 'BRL'
-        });
-        // Enviar para o backend para Conversions API
-        this.sendServerEvent('InitiateCheckout', cartData);
-    },
-    
-    // Rastrear adição de informações de pagamento
-    addPaymentInfo: function(paymentData) {
-        fbq('track', 'AddPaymentInfo', {
-            content_category: 'checkout',
-            payment_type: paymentData.method,
-            value: paymentData.total,
-            currency: 'BRL'
-        });
-        // Enviar para o backend para Conversions API
-        this.sendServerEvent('AddPaymentInfo', paymentData);
-    },
-    
-    // Rastrear compra concluída
-    purchase: function(orderData) {
-        fbq('track', 'Purchase', {
-            content_ids: orderData.items.map(item => item.id),
-            contents: orderData.items.map(item => ({
-                id: item.id,
-                quantity: item.quantity,
-                item_price: item.price
-            })),
-            num_items: orderData.items.reduce((total, item) => total + item.quantity, 0),
-            value: orderData.total,
-            currency: 'BRL',
-            transaction_id: orderData.orderId
-        });
-        // Enviar para o backend para Conversions API
-        this.sendServerEvent('Purchase', orderData);
-    },
-    
-    // Enviar evento para o backend para processamento da Conversions API
-    sendServerEvent: function(eventName, eventData, quantity = null) {
-        // Verificar se estamos em ambiente de produção (Vercel)
-        const isProduction = window.location.hostname.includes('vercel.app') || 
-                             !window.location.hostname.includes('localhost');
+    // Inicializar o pixel
+    initialize: function() {
+        // A inicialização já foi feita no head da página
+        console.log('[FB Pixel] Inicializado');
         
-        // Definir URL base do endpoint
-        const baseUrl = isProduction ? 
-            window.location.origin + '/api/fb-conversions-api.php' : 
-            'fb-conversions-api.php';
-            
-        // Coletar dados do usuário para correspondência aprimorada
-        const userData = this.collectUserData();
+        // Registrar PageView
+        this.trackPageView();
+    },
+    
+    // Acompanhar visualização de página
+    trackPageView: function() {
+        this.sendEvent('PageView');
+        this.sendServerEvent('PageView');
+    },
+    
+    // Acompanhar visualização de conteúdo
+    viewContent: function(data) {
+        this.sendEvent('ViewContent', {
+            content_ids: [data.id],
+            content_type: 'product',
+            value: data.precoPromocional || data.precoOriginal,
+            currency: 'BRL'
+        });
         
-        // Preparar payload
+        this.sendServerEvent('ViewContent', data);
+    },
+    
+    // Acompanhar adição ao carrinho
+    addToCart: function(data) {
+        this.sendEvent('AddToCart', {
+            content_ids: [data.id],
+            content_type: 'product',
+            value: (data.precoPromocional || data.precoOriginal) * (data.quantidade || 1),
+            currency: 'BRL'
+        });
+        
+        this.sendServerEvent('AddToCart', data, data.quantidade);
+    },
+    
+    // Acompanhar início de checkout
+    initiateCheckout: function(data) {
+        this.sendEvent('InitiateCheckout', {
+            content_type: 'product',
+            contents: data.items,
+            value: data.total,
+            currency: 'BRL'
+        });
+        
+        this.sendServerEvent('InitiateCheckout', data);
+    },
+    
+    // Acompanhar adição de método de pagamento
+    addPaymentInfo: function(data) {
+        this.sendEvent('AddPaymentInfo', {
+            content_type: 'product',
+            contents: data.items,
+            value: data.total,
+            currency: 'BRL',
+            payment_type: data.method
+        });
+        
+        this.sendServerEvent('AddPaymentInfo', data);
+    },
+    
+    // Acompanhar conclusão de compra
+    purchase: function(data) {
+        this.sendEvent('Purchase', {
+            contents: data.items,
+            content_type: 'product',
+            value: data.total,
+            currency: 'BRL',
+            transaction_id: data.orderId || ''
+        });
+        
+        this.sendServerEvent('Purchase', data);
+    },
+    
+    // Enviar evento para o pixel
+    sendEvent: function(eventName, params = {}) {
+        if (typeof fbq !== 'function') {
+            console.error('[FB Pixel] fbq não está definido');
+            return;
+        }
+        
+        try {
+            console.log(`[FB Pixel] Enviando evento ${eventName}`, params);
+            fbq('track', eventName, params);
+        } catch (e) {
+            console.error(`[FB Pixel] Erro ao enviar evento ${eventName}:`, e);
+        }
+    },
+    
+    // Enviar evento para o servidor (Conversions API)
+    sendServerEvent: function(eventName, eventData = {}, quantity = null) {
+        // URL para a API serverless (sem extensão .php)
+        const baseUrl = '/api/fb-conversions-api';
+        
+        // Preparar payload para a API
         const payload = {
-            eventName: eventName,
-            eventData: eventData,
-            quantity: quantity,
-            userData: userData,
+            eventName,
+            eventData,
+            quantity,
             url: window.location.href,
             userAgent: navigator.userAgent,
             fbp: this.getFbp(),

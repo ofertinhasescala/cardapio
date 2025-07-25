@@ -1,52 +1,29 @@
 {
   "version": 2,
   "functions": {
-    "api/checkout/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/checkout/pagamento.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/checkout/verificar.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/fb-conversions-api/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/fb-conversions-api.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/webhook/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    },
-    "api/payment.js": {
+    "api/checkout/pagamento/index.js": {
       "runtime": "nodejs20.x"
     },
-    "api/verify.js": {
+    "api/checkout/verificar/index.js": {
+      "runtime": "nodejs20.x"
+    },
+    "api/fb-conversions-api/index.js": {
       "runtime": "nodejs20.x"
     }
   },
   "routes": [
+    { "src": "/api/checkout/pagamento", "dest": "api/checkout/pagamento/index.js" },
+    { "src": "/api/checkout/verificar", "dest": "api/checkout/verificar/index.js" },
+    { "src": "/api/fb-conversions-api", "dest": "api/fb-conversions-api/index.js" },
     { "src": "/api/payment", "dest": "/api/payment.js" },
-    { "src": "/api/verify", "dest": "/api/verify.js" },
-    { "src": "/checkout/pagamento.php", "dest": "/api/checkout/pagamento.php" },
-    { "src": "/checkout/verificar.php", "dest": "/api/checkout/verificar.php" },
-    { "src": "/fb-conversions-api.php", "dest": "/api/fb-conversions-api.php" },
-    { "src": "/webhook.php", "dest": "/api/webhook/index.php" },
-    { "src": "/api/checkout/(.*)", "dest": "/api/checkout/index.php" },
-    { "src": "/api/fb-conversions-api/(.*)", "dest": "/api/fb-conversions-api/index.php" },
-    { "src": "/api/webhook/(.*)", "dest": "/api/webhook/index.php" }
+    { "src": "/api/verify", "dest": "/api/verify.js" }
   ],
   "rewrites": [
+    { "source": "/api/checkout/pagamento", "destination": "/api/checkout/pagamento/index.js" },
+    { "source": "/api/checkout/verificar", "destination": "/api/checkout/verificar/index.js" },
+    { "source": "/api/fb-conversions-api", "destination": "/api/fb-conversions-api/index.js" },
     { "source": "/api/payment", "destination": "/api/payment.js" },
-    { "source": "/api/verify", "destination": "/api/verify.js" },
-    { "source": "/checkout/pagamento.php", "destination": "/api/checkout/pagamento.php" },
-    { "source": "/checkout/verificar.php", "destination": "/api/checkout/verificar.php" },
-    { "source": "/fb-conversions-api.php", "destination": "/api/fb-conversions-api/index.php" },
-    { "source": "/webhook.php", "destination": "/api/webhook/index.php" },
-    { "source": "/api/checkout/(.*)", "destination": "/api/checkout/index.php" },
-    { "source": "/api/fb-conversions-api/(.*)", "destination": "/api/fb-conversions-api/index.php" },
-    { "source": "/api/webhook/(.*)", "destination": "/api/webhook/index.php" }
+    { "source": "/api/verify", "destination": "/api/verify.js" }
   ],
   "headers": [
     {
@@ -67,15 +44,11 @@
     }
   ],
   "env": {
-    "PHP_MEMORY_LIMIT": "512M",
-    "PHP_DISPLAY_ERRORS": "1",
-    "PHP_ALLOW_POST": "1",
-    "PHP_INI_ALLOW_URL_INCLUDE": "1",
-    "VERCEL_PHP_RUNTIME": "vercel-php@0.6.0"
+    "NODE_ENV": "production"
   },
   "build": {
     "env": {
-      "PHP_VERSION": "7.4"
+      "NODE_VERSION": "20.x"
     }
   }
 } 

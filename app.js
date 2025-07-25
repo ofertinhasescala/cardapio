@@ -305,11 +305,12 @@ function criarSecaoProdutos(categoriaKey) {
     // Header da categoria
     const header = document.createElement('div');
     header.className = 'categoria-header';
-    header.innerHTML = `
+    // Usar uma função segura para definir conteúdo HTML
+    setInnerHTMLSafely(header, `
         <span class="categoria-icone">${categoria.icone || '📦'}</span>
         <h2 class="categoria-titulo">${categoria.nome}</h2>
         ${categoria.destaque ? '<span class="categoria-badge">🔥 Popular</span>' : ''}
-    `;
+    `);
     
     // Container dos produtos
     const produtosContainer = document.createElement('div');
@@ -326,6 +327,17 @@ function criarSecaoProdutos(categoriaKey) {
     section.appendChild(produtosContainer);
     
     return section;
+}
+
+// Função segura para definir innerHTML
+function setInnerHTMLSafely(element, content) {
+    if (element) {
+        element.innerHTML = content;
+        return true;
+    } else {
+        console.warn('Tentativa de definir innerHTML em elemento nulo');
+        return false;
+    }
 }
 
 function criarElementoProduto(produto) {
@@ -349,7 +361,8 @@ function criarElementoProduto(produto) {
     if (produto.peso) infosExtras.push(`<span class="produto-peso">${produto.peso}</span>`);
     if (produto.quantidade) infosExtras.push(`<span class="produto-quantidade">${produto.quantidade} unidades</span>`);
     
-    div.innerHTML = `
+    // Usar função segura para definir conteúdo HTML
+    setInnerHTMLSafely(div, `
         <img src="${produto.imagem}" alt="${produto.nome}" class="produto-imagem">
         <div class="produto-conteudo">
             <div class="produto-header">
@@ -368,7 +381,7 @@ function criarElementoProduto(produto) {
             
             ${produto.motivoEscolha ? `<div class="motivo-compra">${produto.motivoEscolha}</div>` : ''}
         </div>
-    `;
+    `);
     
     return div;
 }
@@ -531,6 +544,7 @@ function calcularTotalItens() {
     return carrinho.reduce((sum, item) => sum + item.quantidade, 0);
 }
 
+// Função para atualizar resumo do carrinho
 function atualizarCarrinho() {
     // Garantir que carrinho seja sempre um array
     if (!Array.isArray(carrinho)) {
@@ -574,7 +588,8 @@ function atualizarCarrinho() {
     
     // Preencher lista de itens
     if (listaItensCarrinho) {
-        listaItensCarrinho.innerHTML = '';
+        // Usar setInnerHTMLSafely para limpar o conteúdo
+        setInnerHTMLSafely(listaItensCarrinho, '');
         
         carrinho.forEach(item => {
             const preco = item.precoPromocional || item.preco;
@@ -584,7 +599,8 @@ function atualizarCarrinho() {
             const itemElement = document.createElement('div');
             itemElement.className = 'flex items-center py-3 border-b border-gray-100 last:border-b-0';
             
-            itemElement.innerHTML = `
+            // Usar setInnerHTMLSafely para adicionar conteúdo
+            setInnerHTMLSafely(itemElement, `
                 <div class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                     <img src="${item.imagem}" alt="${item.nome}" class="w-full h-full object-cover">
                 </div>
@@ -608,7 +624,7 @@ function atualizarCarrinho() {
                         <i data-feather="plus" class="w-4 h-4 text-gray-600"></i>
                     </button>
                 </div>
-            `;
+            `);
             
             listaItensCarrinho.appendChild(itemElement);
         });
@@ -621,7 +637,8 @@ function atualizarCarrinho() {
         const total = calcularTotalCarrinho();
         const totalItens = calcularTotalItens();
         
-        resumoTotal.innerHTML = `R$ ${total.toFixed(2).replace('.', ',')} <span class="text-sm font-normal text-gray-600">/ ${totalItens} item${totalItens > 1 ? 's' : ''}</span>`;
+        // Usar setInnerHTMLSafely para o resumo total
+        setInnerHTMLSafely(resumoTotal, `R$ ${total.toFixed(2).replace('.', ',')} <span class="text-sm font-normal text-gray-600">/ ${totalItens} item${totalItens > 1 ? 's' : ''}</span>`);
         carrinhoBar.classList.toggle('hidden', totalItens === 0);
     }
 }
