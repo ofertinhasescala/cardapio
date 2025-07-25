@@ -49,6 +49,7 @@ Na tela de configuração do projeto, adicione as seguintes variáveis de ambien
 | `DB_PATH` | `/tmp/database.sqlite` | Caminho para o banco de dados SQLite |
 | `FB_PIXEL_ID` | `1404066580873208` | ID do Facebook Pixel |
 | `FB_ACCESS_TOKEN` | `EAAiRE5K8xWsB...` | Token de acesso do Facebook (use seu token completo) |
+
 # Credenciais da API Monetrix
 API_KEY=pk_ouwx4hvdzP2IcG-qH-KG4tBeF7_rhkba_HYje6SsTjHo5umn
 API_SECRET=sk__Q39xQdSt6qPoM9gOBb5EKXeG0i-3Fo1pMP77BiWS7Fygjng

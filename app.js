@@ -4,8 +4,29 @@ let enderecoCliente = null;
 let dadosCliente = null;
 let taxaEntregaSelecionada = 0;
 
+// Verificar se o localStorage está funcionando corretamente
+function verificarLocalStorage() {
+    try {
+        localStorage.setItem('teste_storage', 'ok');
+        if (localStorage.getItem('teste_storage') !== 'ok') {
+            console.error('LocalStorage não está funcionando corretamente');
+            return false;
+        }
+        localStorage.removeItem('teste_storage');
+        return true;
+    } catch (error) {
+        console.error('Erro ao acessar localStorage:', error);
+        return false;
+    }
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
+    // Verificar localStorage antes de qualquer operação
+    if (!verificarLocalStorage()) {
+        alert('Erro: Seu navegador pode estar bloqueando o armazenamento local. Por favor, verifique suas configurações de privacidade.');
+    }
+    
     feather.replace();
     verificarCacheEndereco();
     carregarCarrinhoDoCache();
@@ -343,30 +364,83 @@ function criarElementoProduto(produto) {
 
 // Funções do carrinho aprimoradas
 function carregarCarrinhoDoCache() {
-    const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
-    if (carrinhoSalvo) {
-        try {
-            carrinho = JSON.parse(carrinhoSalvo);
-            // Verificar se carrinho é um array válido
-            if (!Array.isArray(carrinho)) {
-                console.error('Carrinho carregado do cache não é um array válido');
-                carrinho = [];
-                localStorage.removeItem('carrinho_produtos');
-            }
-            atualizarCarrinho();
-        } catch (error) {
-            console.error('Erro ao carregar carrinho do cache:', error);
+    try {
+        console.log("Tentando carregar carrinho do localStorage...");
+        const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
+        
+        if (!carrinhoSalvo) {
+            console.log("Nenhum carrinho encontrado no localStorage");
             carrinho = [];
-            localStorage.removeItem('carrinho_produtos');
+            return;
         }
-    } else {
-        // Se não houver carrinho salvo, garantir que o carrinho atual seja um array vazio
+        
+        // Verificar se o JSON é válido
+        try {
+            const carrinhoRecuperado = JSON.parse(carrinhoSalvo);
+            
+            if (!Array.isArray(carrinhoRecuperado)) {
+                console.error("Carrinho recuperado não é um array:", carrinhoRecuperado);
+                carrinho = [];
+                return;
+            }
+            
+            // Verificar se os itens têm a estrutura correta
+            if (carrinhoRecuperado.length > 0 && (!carrinhoRecuperado[0].id || !carrinhoRecuperado[0].nome)) {
+                console.error("Carrinho com formato inesperado:", carrinhoRecuperado);
+                carrinho = [];
+                return;
+            }
+            
+            // Tudo certo, atualizar carrinho
+            carrinho = carrinhoRecuperado;
+            console.log("Carrinho carregado com sucesso:", carrinho.length, "itens");
+        } catch (jsonError) {
+            console.error("Erro ao processar JSON do carrinho:", jsonError);
+            carrinho = [];
+        }
+    } catch (error) {
+        console.error("Erro ao carregar carrinho do localStorage:", error);
         carrinho = [];
+    }
+    
+    // Atualizar interface se necessário
+    if (typeof atualizarCarrinho === 'function') {
+        atualizarCarrinho();
     }
 }
 
+// Função para salvar carrinho no cache
 function salvarCarrinhoNoCache() {
-    localStorage.setItem('carrinho_produtos', JSON.stringify(carrinho));
+    try {
+        console.log("Tentando salvar carrinho no localStorage...");
+        // Verificar se o carrinho é válido
+        if (!Array.isArray(carrinho)) {
+            console.error("Carrinho inválido:", carrinho);
+            alert("Erro ao salvar carrinho: formato inválido");
+            return false;
+        }
+        
+        // Salvar no localStorage
+        localStorage.setItem('carrinho_produtos', JSON.stringify(carrinho));
+        
+        // Verificar se foi salvo corretamente
+        const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
+        if (!carrinhoSalvo) {
+            throw new Error("Carrinho não foi salvo no localStorage");
+        }
+        
+        // Verificar se o JSON é válido
+        const carrinhoRecuperado = JSON.parse(carrinhoSalvo);
+        if (!Array.isArray(carrinhoRecuperado)) {
+            throw new Error("Carrinho salvo não é um array válido");
+        }
+        
+        console.log("Carrinho salvo com sucesso:", carrinhoRecuperado.length, "itens");
+        return true;
+    } catch (error) {
+        console.error("Erro ao salvar carrinho no localStorage:", error);
+        return false;
+    }
 }
 
 function adicionarAoCarrinho(produto, quantidade = 1) {

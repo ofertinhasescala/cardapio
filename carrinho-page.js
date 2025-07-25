@@ -273,7 +273,22 @@ function irParaCheckout() {
     }
     
     // Garantir que o carrinho esteja salvo no localStorage antes de redirecionar
-    salvarCarrinhoNoCache();
+    try {
+        console.log('Salvando carrinho no localStorage antes de ir para checkout...');
+        localStorage.setItem('carrinho_produtos', JSON.stringify(carrinho));
+        
+        // Verificar se o carrinho foi salvo corretamente
+        const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
+        if (!carrinhoSalvo) {
+            throw new Error('Falha ao salvar carrinho no localStorage');
+        }
+        
+        console.log('Carrinho salvo com sucesso:', JSON.parse(carrinhoSalvo).length, 'itens');
+    } catch (error) {
+        console.error('Erro ao salvar carrinho:', error);
+        alert('Ocorreu um erro ao salvar seu carrinho. Por favor, tente novamente.');
+        return;
+    }
     
     // Rastrear evento de início de checkout
     if (typeof fbPixelTracker !== 'undefined') {
@@ -287,6 +302,8 @@ function irParaCheckout() {
         });
     }
     
+    // Redirecionar para a página de checkout
+    console.log('Redirecionando para checkout.html...');
     window.location.href = 'checkout.html';
 }
 

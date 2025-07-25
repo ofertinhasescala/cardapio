@@ -5,24 +5,47 @@ let intervalVerificacaoPage = null;
 document.addEventListener('DOMContentLoaded', function () {
     feather.replace();
     
+    console.log("Checkout inicializado, carregando carrinho...");
+    
     // Garantir que o carrinho seja carregado corretamente do localStorage
-    const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
-    if (carrinhoSalvo) {
-        try {
-            carrinho = JSON.parse(carrinhoSalvo);
-        } catch (error) {
-            console.error('Erro ao carregar carrinho do cache:', error);
+    try {
+        const carrinhoSalvo = localStorage.getItem('carrinho_produtos');
+        console.log("Carrinho encontrado no localStorage:", carrinhoSalvo ? "sim" : "não");
+        
+        if (carrinhoSalvo) {
+            try {
+                carrinho = JSON.parse(carrinhoSalvo);
+                console.log("Carrinho carregado com sucesso:", carrinho.length, "itens");
+                
+                // Verificar se os itens têm as propriedades esperadas
+                if (carrinho.length > 0 && (!carrinho[0].id || !carrinho[0].nome)) {
+                    console.warn("Carrinho com formato inesperado:", carrinho);
+                    alert("Ocorreu um erro ao carregar seu carrinho. Redirecionando para o carrinho...");
+                    window.location.href = 'carrinho.html';
+                    return;
+                }
+            } catch (error) {
+                console.error('Erro ao converter carrinho do localStorage:', error);
+                carrinho = [];
+            }
+        } else {
+            console.warn("Nenhum carrinho encontrado no localStorage");
             carrinho = [];
         }
+    } catch (error) {
+        console.error('Erro ao acessar localStorage:', error);
+        carrinho = [];
     }
 
     // Verificar se há itens no carrinho
     if (!carrinho || carrinho.length === 0) {
+        console.warn("Carrinho vazio, redirecionando para carrinho.html");
         alert('Seu carrinho está vazio!');
         window.location.href = 'carrinho.html';
         return;
     }
 
+    console.log("Inicializando checkout com", carrinho.length, "itens");
     inicializarCheckoutPage();
 });
 
