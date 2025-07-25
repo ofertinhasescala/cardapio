@@ -263,19 +263,25 @@ async function iniciarPagamentoPixPage() {
     try {
         console.log("Iniciando processo de pagamento PIX");
         
-        document.getElementById('dadosClientePage').classList.add('hidden');
-        document.getElementById('enderecoPage').classList.add('hidden');
-        document.getElementById('gerandoPixPage').classList.remove('hidden');
+        // Verificar e manipular elementos com segurança
+        const dadosClienteEl = document.getElementById('dadosClientePage');
+        const enderecoEl = document.getElementById('enderecoPage');
+        const gerandoPixEl = document.getElementById('gerandoPixPage');
+        
+        // Ocultar elementos da etapa anterior e mostrar elemento de carregamento
+        if (dadosClienteEl) dadosClienteEl.classList.add('hidden');
+        if (enderecoEl) enderecoEl.classList.add('hidden');
+        if (gerandoPixEl) gerandoPixEl.classList.remove('hidden');
         
         // Dados do pedido
         const dadosPedido = {
-            nome: document.getElementById('nomeClientePage').value,
-            telefone: document.getElementById('telefoneClientePage').value,
+            nome: document.getElementById('nomeClientePage')?.value || 'Cliente',
+            telefone: document.getElementById('telefoneClientePage')?.value || '0000000000',
             email: "cliente@exemplo.com", // Email de exemplo para teste
-            endereco: enderecoCliente,
+            endereco: enderecoCliente || {},
             produtos: carrinho,
             valor: calcularResumoCompleto().total * 100, // em centavos
-            utm_params: getUTMParams() // Captura parâmetros UTM
+            utm_params: capturarParametrosUTM() // Captura parâmetros UTM usando a função correta
         };
 
         console.log("Dados do pedido preparados:", dadosPedido);
@@ -340,37 +346,62 @@ async function iniciarPagamentoPixPage() {
         console.error("Erro ao gerar PIX:", error);
         alert(`Erro ao gerar PIX. Tente novamente: ${error.message}`);
         
-        // Voltar para a etapa anterior
-        document.getElementById('gerandoPixPage').classList.add('hidden');
-        document.getElementById('metodosPagamentoPage').classList.remove('hidden');
+        // Voltar para a etapa anterior - verificar elementos primeiro
+        const gerandoPixEl = document.getElementById('gerandoPixPage');
+        const metodosPageEl = document.getElementById('metodosPagamentoPage');
+        
+        if (gerandoPixEl) gerandoPixEl.classList.add('hidden');
+        
+        // Se o elemento de métodos de pagamento não existir, voltar para a etapa anterior
+        if (metodosPageEl) {
+            metodosPageEl.classList.remove('hidden');
+        } else {
+            // Voltar para etapa 2 como fallback
+            etapaAtualCheckoutPage = 2;
+            mostrarEtapaCheckoutPage(2);
+        }
     }
 }
 
 // Função para exibir PIX gerado
 function exibirPixGeradoPage(dadosPix) {
-    document.getElementById('gerandoPixPage').classList.add('hidden');
-    document.getElementById('pixGeradoPage').classList.remove('hidden');
-
     console.log("Exibindo dados PIX:", dadosPix);
+
+    // Verificar e manipular elementos com segurança
+    const gerandoPixEl = document.getElementById('gerandoPixPage');
+    const pixGeradoEl = document.getElementById('pixGeradoPage');
+    
+    // Alternar visibilidade dos elementos
+    if (gerandoPixEl) gerandoPixEl.classList.add('hidden');
+    if (pixGeradoEl) pixGeradoEl.classList.remove('hidden');
 
     // Preencher dados do PIX
     const qrCodeImage = document.getElementById('qrCodeImagePage');
     const codigoPixInput = document.getElementById('codigoPixPage');
     
-    if (dadosPix.qrCodeUrl) {
+    // Definir QR Code se disponível e o elemento existir
+    if (dadosPix.qrCodeUrl && qrCodeImage) {
         qrCodeImage.src = dadosPix.qrCodeUrl;
+        qrCodeImage.alt = "QR Code PIX para pagamento";
     }
     
     // O código PIX pode estar em campos diferentes dependendo da API
-    const pixCode = dadosPix.pixCode || dadosPix.code || dadosPix.pix?.code || dadosPix.qrCode || dadosPix.qrcode;
-    if (pixCode) {
+    const pixCode = dadosPix.pixCode || dadosPix.code || 
+                   (dadosPix.pix && dadosPix.pix.code) || 
+                   dadosPix.qrCode || dadosPix.qrcode;
+    
+    // Definir código PIX se disponível e o elemento existir
+    if (pixCode && codigoPixInput) {
         codigoPixInput.value = pixCode;
-    } else {
-        console.error("Código PIX não encontrado na resposta", dadosPix);
+    } else if (codigoPixInput) {
         codigoPixInput.value = "Erro ao gerar código PIX";
+        console.error("Código PIX não encontrado na resposta", dadosPix);
     }
 
-    feather.replace();
+    // Atualizar os ícones feather se disponível
+    if (typeof feather !== 'undefined' && feather.replace) {
+        feather.replace();
+    }
 }
 
 // Função para copiar código PIX
@@ -449,24 +480,27 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
             } 
             else if (data.status === 'pending') {
                 // Ainda aguardando pagamento
-                statusElement.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="animate-pulse w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                        <span class="text-sm font-medium text-yellow-800">Aguardando pagamento... (${tentativas})</span>
-                    </div>
-                `;
+                if (statusElement) {
+                    statusElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="animate-pulse w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                            <span class="text-sm font-medium text-yellow-800">Aguardando pagamento... (${tentativas})</span>
+                        </div>
+                    `;
+                }
             } 
             else if (data.status === 'error' || data.status === 'failed' || data.status === 'canceled') {
                 // Pagamento falhou
                 clearInterval(intervalVerificacaoPage);
-                statusElement.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                        <span class="text-sm font-medium text-red-800">Pagamento falhou: ${data.message || 'Erro desconhecido'}</span>
-                    </div>
-                `;
                 
-                // Não voltamos para etapa anterior automaticamente para o usuário poder ver a mensagem
+                if (statusElement) {
+                    statusElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                            <span class="text-sm font-medium text-red-800">Pagamento falhou: ${data.message || 'Erro desconhecido'}</span>
+                        </div>
+                    `;
+                }
             }
             
             // Verificar timeout
@@ -489,9 +523,17 @@ function iniciarVerificacaoPagamentoPage(transactionId) {
 
 // Função para exibir confirmação de pagamento
 function exibirPagamentoConfirmadoPage(dadosPagamento) {
-    document.getElementById('gerandoPixPage').classList.add('hidden');
-    document.getElementById('pixGeradoPage').classList.add('hidden');
-    document.getElementById('pagamentoConfirmadoPage').classList.remove('hidden');
+    console.log("Exibindo confirmação de pagamento:", dadosPagamento);
+
+    // Verificar e manipular elementos com segurança
+    const gerandoPixEl = document.getElementById('gerandoPixPage');
+    const pixGeradoEl = document.getElementById('pixGeradoPage');
+    const pagamentoConfirmadoEl = document.getElementById('pagamentoConfirmadoPage');
+    
+    // Alternar visibilidade dos elementos
+    if (gerandoPixEl) gerandoPixEl.classList.add('hidden');
+    if (pixGeradoEl) pixGeradoEl.classList.add('hidden');
+    if (pagamentoConfirmadoEl) pagamentoConfirmadoEl.classList.remove('hidden');
 
     // Salvar o ID da transação para referência
     window.transactionId = dadosPagamento.id || dadosPagamento.transactionId || dadosPagamento.token;
@@ -511,8 +553,13 @@ function exibirPagamentoConfirmadoPage(dadosPagamento) {
 
     // Limpar carrinho após pagamento confirmado
     setTimeout(() => {
-        localStorage.removeItem('carrinho_produtos');
-        carrinho = [];
+        try {
+            localStorage.removeItem('carrinho_produtos');
+            carrinho = [];
+            console.log("Carrinho limpo após confirmação de pagamento");
+        } catch (error) {
+            console.error("Erro ao limpar carrinho:", error);
+        }
     }, 1000); // Aguardar um pouco para garantir que o usuário veja a mensagem
 
     // Exibir resumo final
@@ -520,27 +567,36 @@ function exibirPagamentoConfirmadoPage(dadosPagamento) {
 
     // Gerar protocolo
     const protocolo = `PG${Date.now().toString().slice(-6)}`;
-    document.getElementById('protocoloPedidoPage').textContent = protocolo;
+    const protocoloEl = document.getElementById('protocoloPedidoPage');
+    if (protocoloEl) protocoloEl.textContent = protocolo;
 
     // Atualizar endereço de entrega
-    if (enderecoCliente) {
-        document.getElementById('enderecoEntregaPage').textContent =
+    const enderecoEntregaEl = document.getElementById('enderecoEntregaPage');
+    if (enderecoEntregaEl && enderecoCliente) {
+        enderecoEntregaEl.textContent =
             `${enderecoCliente.logradouro}, ${enderecoCliente.numero}, ${enderecoCliente.bairro}, ${enderecoCliente.cidade} - ${enderecoCliente.uf}`;
     }
 
     // Atualizar botão
     const btnProxima = document.getElementById('btnProximaEtapaPage');
     const textoBotao = document.getElementById('textoBotaoEtapa');
-    textoBotao.textContent = 'Finalizar';
-    btnProxima.disabled = false;
-    btnProxima.classList.remove('opacity-50', 'cursor-not-allowed');
-    btnProxima.onclick = () => {
-        // Limpar carrinho e voltar para início
-        limparCarrinho();
-        window.location.href = 'index.html';
-    };
+    
+    if (textoBotao) textoBotao.textContent = 'Finalizar';
+    
+    if (btnProxima) {
+        btnProxima.disabled = false;
+        btnProxima.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnProxima.onclick = () => {
+            // Limpar carrinho e voltar para início
+            limparCarrinho();
+            window.location.href = 'index.html';
+        };
+    }
 
-    feather.replace();
+    // Atualizar os ícones feather se disponível
+    if (typeof feather !== 'undefined' && feather.replace) {
+        feather.replace();
+    }
 }
 
 // Função para exibir resumo final do pedido

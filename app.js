@@ -519,19 +519,98 @@ function calcularTotalItens() {
 }
 
 function atualizarCarrinho() {
-    const carrinhoBar = document.getElementById('carrinhoBar');
-    const resumoTotal = document.getElementById('resumoTotal');
+    // Garantir que carrinho seja sempre um array
+    if (!Array.isArray(carrinho)) {
+        console.error("Carrinho inválido:", carrinho);
+        carrinho = [];
+    }
     
-    if (carrinho.length === 0) {
-        carrinhoBar.classList.add('hidden');
+    console.log("Atualizando interface do carrinho com", carrinho.length, "itens");
+    
+    // Verificar se os elementos existem antes de manipulá-los
+    const contadorCarrinho = document.getElementById('contadorCarrinho');
+    const listaItensCarrinho = document.getElementById('listaItensCarrinho');
+    const carrinhoVazio = document.getElementById('carrinhoVazio');
+    const carrinhoComItens = document.getElementById('carrinhoComItens');
+    const resumoTotal = document.getElementById('resumoTotal');
+    const carrinhoBar = document.getElementById('carrinhoBar');
+    
+    // Atualizar contador de itens
+    if (contadorCarrinho) {
+        const totalItens = calcularTotalItens();
+        contadorCarrinho.textContent = totalItens;
+        contadorCarrinho.classList.toggle('hidden', totalItens === 0);
+    }
+    
+    // Se não encontrarmos os elementos necessários para exibir o carrinho, retornar
+    if (!listaItensCarrinho && !carrinhoVazio && !carrinhoComItens) {
+        console.log("Elementos do carrinho não encontrados na página atual");
         return;
     }
     
-    const total = calcularTotalCarrinho();
-    const totalItens = calcularTotalItens();
+    // Atualizar visibilidade dos elementos baseado na quantidade de itens
+    if (carrinhoVazio && carrinhoComItens) {
+        if (carrinho.length === 0) {
+            carrinhoVazio.classList.remove('hidden');
+            carrinhoComItens.classList.add('hidden');
+        } else {
+            carrinhoVazio.classList.add('hidden');
+            carrinhoComItens.classList.remove('hidden');
+        }
+    }
     
-    resumoTotal.innerHTML = `R$ ${total.toFixed(2).replace('.', ',')} <span class="text-sm font-normal text-gray-600">/ ${totalItens} item${totalItens > 1 ? 's' : ''}</span>`;
-    carrinhoBar.classList.remove('hidden');
+    // Preencher lista de itens
+    if (listaItensCarrinho) {
+        listaItensCarrinho.innerHTML = '';
+        
+        carrinho.forEach(item => {
+            const preco = item.precoPromocional || item.preco;
+            const subtotal = preco * item.quantidade;
+            const temDesconto = item.precoOriginal && item.precoPromocional;
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'flex items-center py-3 border-b border-gray-100 last:border-b-0';
+            
+            itemElement.innerHTML = `
+                <div class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                    <img src="${item.imagem}" alt="${item.nome}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 px-4">
+                    <h4 class="text-base font-medium text-gray-900 truncate">${item.nome}</h4>
+                    <div class="flex items-center mt-1">
+                        <div class="text-sm ${temDesconto ? 'text-green-600 font-medium' : 'text-gray-800'}">
+                            R$ ${preco.toFixed(2).replace('.', ',')}
+                            ${temDesconto ? `<span class="text-xs text-gray-500 line-through ml-1">R$ ${item.precoOriginal.toFixed(2).replace('.', ',')}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="diminuirQuantidadeCarrinho('${item.id}')" 
+                        class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-feather="minus" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                    <span class="text-gray-800 font-medium w-5 text-center">${item.quantidade}</span>
+                    <button onclick="aumentarQuantidadeCarrinho('${item.id}')" 
+                        class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i data-feather="plus" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                </div>
+            `;
+            
+            listaItensCarrinho.appendChild(itemElement);
+        });
+        
+        feather.replace();
+    }
+    
+    // Atualizar resumo do carrinho
+    if (resumoTotal && carrinhoBar) {
+        const total = calcularTotalCarrinho();
+        const totalItens = calcularTotalItens();
+        
+        resumoTotal.innerHTML = `R$ ${total.toFixed(2).replace('.', ',')} <span class="text-sm font-normal text-gray-600">/ ${totalItens} item${totalItens > 1 ? 's' : ''}</span>`;
+        carrinhoBar.classList.toggle('hidden', totalItens === 0);
+    }
 }
 
 function limparCarrinho() {
