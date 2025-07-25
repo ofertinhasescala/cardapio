@@ -11,13 +11,6 @@
       "runtime": "nodejs20.x"
     }
   },
-  "routes": [
-    { "src": "/api/checkout/pagamento", "dest": "api/checkout/pagamento/index.js" },
-    { "src": "/api/checkout/verificar", "dest": "api/checkout/verificar/index.js" },
-    { "src": "/api/fb-conversions-api", "dest": "api/fb-conversions-api/index.js" },
-    { "src": "/api/payment", "dest": "/api/payment.js" },
-    { "src": "/api/verify", "dest": "/api/verify.js" }
-  ],
   "rewrites": [
     { "source": "/api/checkout/pagamento", "destination": "/api/checkout/pagamento/index.js" },
     { "source": "/api/checkout/verificar", "destination": "/api/checkout/verificar/index.js" },
